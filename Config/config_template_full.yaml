@@ -1,0 +1,276 @@
+# ===================================================================
+# Agent Sandbox and Evaluation - Complete Configuration Template
+# ===================================================================
+# This file contains all available configuration options with detailed comments.
+# Use this as a reference when creating your own configuration files.
+
+# ===================================================================
+# 1. Benchmark Configuration
+# ===================================================================
+# Defines the benchmark tasks to execute
+Benchmark:
+  # Path to the benchmark file (.jsonl, .json, or .yaml)
+  path: ./Benchmark/AgentBench/dbbench/standard.jsonl
+
+  # Task type - determines how agents interact with tasks
+  # Options:
+  #   - "single-agent task": Single-round interaction with one agent
+  #   - "single-agent multi-round": Multi-round conversation with one agent
+  #   - "multi-agent task": Multiple agents collaborate on a task
+  #   - "multi-agent multi-round": Multi-agent with multiple rounds of interaction
+  type: single-agent multi-round
+
+  # Whether to use per-task tools (tools specific to each task)
+  # If true, expects tools in Toolkit/[dataset_name]/task_[id]/ directories
+  per_task_tools: false
+
+  # Optional: Task range to execute (1-based indexing)
+  # Leave as null to execute all tasks
+  start_idx: null  # Start from first task
+  end_idx: null    # Execute through last task
+
+  # Example with specific range:
+  # start_idx: 10
+  # end_idx: 20
+
+
+# ===================================================================
+# 2. Toolkit Configuration
+# ===================================================================
+# Defines where to find the tools/functions available to agents
+Toolkit:
+  # Path to the toolkit directory containing tool definitions
+  path: ./Toolkit/AgentBench/dbbench
+
+  # Optional: Custom tool loader script (if not using default)
+  # loader: ./Toolkit/custom_loader.py
+
+
+# ===================================================================
+# 3. Environment Configuration
+# ===================================================================
+# Defines the execution environment for tasks
+Environment:
+  # Path to environment resources (databases, files, etc.)
+  path: ./Environment/AgentBench/dbbench
+
+  # Environment type determines how environments are managed
+  # Options:
+  #   - null: No environment setup needed
+  #   - "global": One shared environment for all tasks
+  #   - "per-task": Each task gets its own isolated environment
+  #     (Environment paths must be specified in benchmark file)
+  type: per-task
+
+
+# ===================================================================
+# 4. Model Configuration
+# ===================================================================
+# Defines which language model(s) to use and their settings
+Model:
+  # Active provider - which provider configuration block to use
+  # Options: openai-server, transformers, vllm, anthropic, etc.
+  provider: openai-server
+
+  # Global parameters applied to all providers (can be overridden per provider)
+  parameters:
+    temperature: 0.0      # Sampling temperature (0.0 = deterministic)
+    top_p: null           # Nucleus sampling (null = disabled)
+    max_tokens: 4096      # Maximum tokens to generate
+    timeout: 60           # Request timeout in seconds
+    # do_sample: true     # Whether to use sampling (for some models)
+
+  # Provider-specific configurations
+  providers:
+    # OpenAI-compatible API server (including proxies)
+    openai-server:
+      model_id: gpt-4o-mini                            # Model identifier
+      api_base: http://your-api-server:port/v1          # API endpoint
+      api_key: "your-api-key-here"                     # API authentication key
+      organization: null                                # Optional: OpenAI org ID
+      project: null                                     # Optional: OpenAI project ID
+      client_kwargs: {}                                 # Additional client arguments
+
+    # Hugging Face Transformers (local models)
+    transformers:
+      model_id: meta-llama/Llama-3.1-8B-Instruct       # Model path or HF hub ID
+      device: cuda                                      # Device: cuda, cpu, mps
+      torch_dtype: float16                              # Model precision
+      load_in_8bit: false                               # Use 8-bit quantization
+      load_in_4bit: false                               # Use 4-bit quantization
+      trust_remote_code: true                           # Allow custom model code
+      use_flash_attention: false                        # Enable flash attention
+
+    # vLLM (high-performance serving)
+    vllm:
+      model_id: meta-llama/Llama-3.1-70B-Instruct      # Model to serve
+      tensor_parallel_size: 4                           # Number of GPUs
+      dtype: float16                                    # Model precision
+      gpu_memory_utilization: 0.9                       # GPU memory usage
+      max_model_len: 8192                               # Maximum context length
+      trust_remote_code: true                           # Allow custom code
+
+    # Anthropic Claude models
+    anthropic:
+      model_id: claude-3-5-sonnet-20241022             # Claude model version
+      api_key: "your-anthropic-api-key"                # Anthropic API key
+      max_tokens: 4096                                  # Max output tokens
+
+
+# ===================================================================
+# 5. Agent Configuration
+# ===================================================================
+# Defines the agent(s) that will execute tasks
+Agent:
+  # Agent type - must match the Benchmark type
+  # Options:
+  #   - "single-agent": Single agent for all tasks
+  #   - "single-agent multi-round": Single agent with multi-turn capability
+  #   - "multi-agent": Multiple cooperating agents
+  type: single-agent
+
+  # Path to agent definition file (.jsonl format)
+  # Contains agent prompts, roles, and configurations
+  agent_dir: ./Agent/AgentBench/dbbench/Agent.jsonl
+
+  # Agent implementation type
+  # Options:
+  #   - "ToolCallingAgent": Uses native function calling (recommended)
+  #   - "CodeAgent": Generates and executes Python code
+  agent_type: ToolCallingAgent
+
+  # Whether to stream agent outputs in real-time
+  stream_outputs: false
+
+  # Planning interval: how often agent should create execution plans
+  # -1 = use default intervals, 0 = no planning, N = plan every N steps
+  planning_interval: -1
+
+  # Maximum number of tools that can execute in parallel
+  max_tool_threads: 1
+
+  # Whether to give agents access to all tools or only specified ones
+  fill_with_all_tools: false
+
+  # For multi-agent systems: which agent receives the initial task
+  entry_agent_name: Agent
+
+  # Maximum retry attempts for failed tool calls
+  max_attempts: 3
+
+
+# ===================================================================
+# 6. Output Configuration
+# ===================================================================
+# Defines where and how to save results
+Output:
+  # Directory for detailed execution logs
+  log_dir: ./Results/logs/AgentBench/dbbench
+
+  # Directory for structured output files (JSON/JSONL)
+  save_dir: ./Results/outputs/AgentBench/dbbench
+
+  # Optional: Path to save evaluation metrics summary
+  eval_results: ./Results/metrics.json
+
+  # Optional: Whether to include environment snapshots in output
+  include_environment: false
+
+  # Optional: Where to archive environment states
+  environment_archive_dir: ./Results/environment/AgentBench/dbbench
+
+
+# ===================================================================
+# 7. Evaluation Configuration (for eval_best.py)
+# ===================================================================
+# Defines how to evaluate agent performance using eval_best.py script
+Evaluation:
+  # Evaluation type - determines which evaluation method to use
+  # Options:
+  #   - "actions": Environment state-based evaluation (hash comparison)
+  #   - "llm": LLM judge-based evaluation (semantic understanding)
+  #   - "both" or "all": Use both methods (combined scoring)
+  type: actions
+
+  # Directory to save evaluation results (.jsonl files)
+  save_dir: ./Evaluation/results
+
+  # LLM Judge Configuration (required only when type is "llm", "both", or "all")
+  # Used to evaluate tasks that don't have deterministic ground truth
+  server:
+    # Model identifier for the judge
+    model_id: gpt-4o
+
+    # API endpoint
+    api_base: https://api.openai.com/v1
+
+    # API authentication key
+    api_key: "your-api-key-here"
+
+    # Path to evaluation prompt template (YAML file)
+    # Template should contain 'system' and 'evaluate' fields
+    # The 'evaluate' field can use placeholders: {instruction}, {label}, {final_memory}, {result}, {log}
+    judge_prompt_template: Evaluation/prompt_templates/AgentBench(LTP).yaml
+
+    # Optional: Direct system prompt (overridden by template if provided)
+    system: "You are an expert evaluator assessing agent task performance."
+
+    # Optional: Direct evaluation template (overridden by template file if provided)
+    evaluate: |
+      Task: {instruction}
+      Expected: {label}
+      Agent Result: {result}
+
+      Evaluate the agent's performance and return JSON:
+      {{"score": 0.0-1.0, "reasoning": "explanation"}}
+
+
+# ===================================================================
+# Result Configuration (for eval_best.py log discovery)
+# ===================================================================
+# These settings help eval_best.py automatically find and filter logs
+Result:
+  # Directory containing execution logs
+  log_dir: ./Results/logs/AgentBench/dbbench
+
+  # Directory containing result output files
+  save_dir: ./Results/outputs/AgentBench/dbbench
+
+  # Directory where environment archives are stored (post-execution)
+  environment_archive_dir: ./Results/environment/AgentBench/dbbench
+
+  # Optional: Run timestamp for filtering specific runs
+  # Format: YYYYMMDD_HHMMSS (e.g., 20260128_120000)
+  # If specified, eval_best.py will only evaluate logs matching this timestamp
+  run_timestamp: null
+
+  # Optional: Model identifier for filtering specific model runs
+  # If specified, eval_best.py will only evaluate logs matching this model
+  model_tag: null
+
+
+# ===================================================================
+# 8. Execution Configuration
+# ===================================================================
+# Controls parallel execution and performance
+Execution:
+  # Maximum number of tasks to run in parallel
+  # Adjust based on your system resources and API rate limits
+  max_workers: 8
+
+  # Optional: Timeout per task (seconds)
+  # task_timeout: 300
+
+  # Optional: Whether to continue on task failures
+  # continue_on_error: true
+
+
+# ===================================================================
+# Notes:
+# ===================================================================
+# 1. All paths can be relative (to project root) or absolute
+# 2. JSONL files should have one JSON object per line
+# 3. For per-task tools/environments, benchmark file must include paths
+# 4. API keys should be kept secure (use environment variables in production)
+# 5. Adjust max_workers based on API rate limits and system resources
+# 6. Not all sections are required - minimal config needs: Benchmark, Model, Agent

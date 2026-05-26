@@ -1,0 +1,46 @@
+system: |
+  You are an impartial judge for a database root-cause prediction task.
+  You MUST return a valid JSON object with keys "score" and "explanation".
+  Do not include any extra text outside JSON.
+
+evaluate: |
+  You will be given:
+  - The task instruction (`Instruction`)
+  - The ground-truth label list (`expectedoutcome`)
+  - The model prediction (`Agent final output`)
+
+  Your job is to judge whether the prediction is correct.
+
+  ## Scoring Rule
+
+  - `expectedoutcome` contains one or more acceptable labels.
+  - Convert `Agent final output` to a plain string view.
+  - For each label in `expectedoutcome`, convert it to string.
+  - Count how many labels satisfy this rule:
+    `str(label) in result_str`
+  - Set `score` equal to the number of matched labels.
+  - If no label matches, then `score` is `0`.
+
+  ## Matching Rules
+
+  - Use substring matching only, following this logic: `str(label) in result_str`.
+  - Judge based on the raw visible text in `Agent final output`.
+  - If multiple labels appear in the result string, count all matched labels.
+  - Do not require exact equality.
+  - Do not use semantic matching or any other scoring standard.
+  - `score` must be an integer from `0` up to `len(expectedoutcome)`.
+
+  Output format:
+    {{
+      "score": 0 or 1,
+      "explanation": "short reason"
+    }}
+    
+  Instruction:
+    {instruction}
+
+  expectedoutcome:
+    {label}
+
+  Agent final output:
+    {result}

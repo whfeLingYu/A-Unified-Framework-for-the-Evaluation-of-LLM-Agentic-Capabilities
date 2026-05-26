@@ -1,0 +1,163 @@
+# ===================================================================
+# Multi-Agent Configuration Template
+# ===================================================================
+# Template for multi-agent collaborative scenarios.
+# Suitable for tasks requiring multiple roles/perspectives.
+
+Benchmark:
+  path: ./Benchmark/MultiAgentBench/coding/tasks.jsonl
+  type: multi-agent multi-round  # or "multi-agent task"
+  per_task_tools: false
+  start_idx: null
+  end_idx: null
+
+Toolkit:
+  path: ./Toolkit/MultiAgentBench/coding
+
+Environment:
+  path: ./Environment/MultiAgentBench/coding
+  type: per-task  # Each task gets isolated environment
+
+Model:
+  provider: openai-server
+
+  parameters:
+    temperature: 0.3  # Slightly higher for diverse agent personalities
+    max_tokens: 4096
+    timeout: 60
+
+  providers:
+    openai-server:
+      model_id: gpt-4o  # Multi-agent scenarios often benefit from stronger models
+      api_base: https://api.openai.com/v1
+      api_key: "your-api-key-here"
+      client_kwargs: {}
+
+Agent:
+  type: multi-agent  # Must match Benchmark.type
+  agent_dir: ./Agent/MultiAgentBench/coding/MultiAgent.jsonl
+  agent_type: ToolCallingAgent
+
+  # Multi-agent specific settings
+  stream_outputs: true  # Recommended to see agent interactions
+  planning_interval: 3  # Plan every 3 rounds
+  max_tool_threads: 2   # Allow parallel tool calls
+  fill_with_all_tools: false
+
+  # IMPORTANT: Specify which agent receives the initial task
+  entry_agent_name: UserAgent  # Must match an agent name in agent_dir file
+
+  max_attempts: 3
+
+Output:
+  log_dir: ./Results/logs/MultiAgentBench
+  save_dir: ./Results/outputs/MultiAgentBench
+  eval_results: ./Results/multi_agent_metrics.json
+
+  # Recommended for multi-agent: save interaction traces
+  include_environment: true
+  environment_archive_dir: ./Results/environment/MultiAgentBench
+
+Evaluation:
+  # Multi-agent tasks often require LLM-based evaluation
+  type: llm  # Use "both" if tasks have both actions and labels
+
+  save_dir: ./Evaluation/multi_agent_results
+
+  # LLM Judge for evaluating collaboration quality
+  server:
+    model_id: gpt-4o
+    api_base: https://api.openai.com/v1
+    api_key: "your-api-key-here"
+    judge_prompt_template: Evaluation/prompt_templates/multi_agent_eval.yaml
+
+Result:
+  log_dir: ./Results/logs/MultiAgentBench
+  save_dir: ./Results/outputs/MultiAgentBench
+  environment_archive_dir: ./Results/environment/MultiAgentBench
+
+Execution:
+  max_workers: 2  # Multi-agent scenarios are resource intensive
+  task_timeout: 600  # 10 minutes (multi-agent takes longer)
+  continue_on_error: true
+
+# ===================================================================
+# Multi-Agent Configuration Guide:
+# ===================================================================
+#
+# 1. Agent Definition File Format (JSONL):
+#    Each line defines one agent with their role and capabilities:
+#
+#    {"name": "UserAgent", "role": "Customer", "system_prompt": "You are a customer seeking help.", "tools": ["ask_question", "provide_feedback"]}
+#    {"name": "SupportAgent", "role": "Support Rep", "system_prompt": "You assist customers professionally.", "tools": ["search_kb", "create_ticket"]}
+#    {"name": "ManagerAgent", "role": "Manager", "system_prompt": "You handle escalations.", "tools": ["approve_refund", "escalate"]}
+#
+# 2. Entry Agent:
+#    - The agent specified in 'entry_agent_name' receives the task first
+#    - This agent should be designed to initiate the workflow
+#    - Common choices: UserAgent, CoordinatorAgent, PlannerAgent
+#
+# 3. Agent Communication:
+#    - Agents can call special "communication tools" to talk to each other
+#    - Example tools: send_message_to_agent, request_help, delegate_task
+#    - The framework handles routing messages between agents
+#
+# 4. Tool Assignment Strategies:
+#    a) Exclusive tools: Each agent has unique tools (recommended)
+#       - UserAgent: ask_question, provide_feedback
+#       - SupportAgent: search_kb, create_ticket
+#       - ManagerAgent: approve_refund, escalate
+#
+#    b) Shared tools: Multiple agents access same tools
+#       - All agents: search_tool, memory_tool
+#       - Be careful with state management
+#
+#    c) Hierarchical: Some tools only for certain roles
+#       - Low-level agents: query, search
+#       - High-level agents: approve, decide
+#
+# 5. Common Multi-Agent Patterns:
+#
+#    a) Sequential Pipeline:
+#       Task → Agent1 → Agent2 → Agent3 → Result
+#       Example: Planner → Executor → Reviewer
+#
+#    b) Hub-and-Spoke:
+#       Coordinator Agent delegates to specialist agents
+#       Example: Manager → {Developer, Tester, Writer}
+#
+#    c) Peer-to-Peer:
+#       Agents negotiate and collaborate directly
+#       Example: Buyer ↔ Seller in negotiation
+#
+#    d) Hierarchical:
+#       Manager agents oversee worker agents
+#       Example: CEO → Department Heads → Workers
+#
+# 6. Best Practices:
+#    - Keep agent roles clear and non-overlapping
+#    - Use stream_outputs: true to debug interactions
+#    - Start with 2-3 agents, add more only if needed
+#    - Give each agent a distinct personality/style
+#    - Design explicit handoff/delegation mechanisms
+#    - Monitor for infinite loops (agents talking endlessly)
+#
+# 7. Debugging Tips:
+#    - Set max_workers: 1 for easier debugging
+#    - Enable stream_outputs to see real-time interactions
+#    - Check agent_name in logs to track who did what
+#    - Verify entry_agent_name matches an agent in the file
+#    - Test with start_idx/end_idx on single tasks first
+#
+# 8. Performance Considerations:
+#    - Multi-agent scenarios use more API calls (higher cost)
+#    - Set appropriate task_timeout (they take longer)
+#    - Consider using a stronger model (gpt-4o vs gpt-4o-mini)
+#    - Lower max_workers to avoid overwhelming the system
+#
+# 9. Example Use Cases:
+#    - Customer service simulation (customer + support + manager)
+#    - Software development (planner + coder + reviewer)
+#    - Negotiation/Bargaining (buyer + seller)
+#    - Research collaboration (searcher + analyst + writer)
+#    - Game playing (multiple players with different roles)

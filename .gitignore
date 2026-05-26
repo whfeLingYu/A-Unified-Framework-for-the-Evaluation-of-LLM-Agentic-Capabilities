@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+
+# Large folders
+Results/
+Benchmark/
+Environment/
+Toolkit/
+Datasets/
+
+# Specific files
+Benchmark/browsecomp/decrypted.jsonl
+Benchmark/browsecomp/down_corp.jsonl
+Benchmark/browsecomp/corpus_input/clean_corp.jsonl
+
+Environment/browsecomp/*
+Environment/browsecomp/academic_python_index/
+Environment/BFCL/web/
+Environment/MultiAgentBench/research/crawled_papers/*

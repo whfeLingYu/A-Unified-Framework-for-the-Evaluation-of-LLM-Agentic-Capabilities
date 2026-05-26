@@ -1,0 +1,52 @@
+Benchmark:
+  path: ./Benchmark/AgentBench/dbbench/standard_updated_instructions.jsonl
+  type: single-agent multi-round
+  start_idx: 2
+  end_idx: 2
+Toolkit:
+  path: ./Toolkit/AgentBench/dbbench
+Environment:
+  path: ./Environment/AgentBench/dbbench
+  type: per-task
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.0
+  providers:
+    openai-server:
+      model_id: gpt-4o-mini
+      api_base: http://your-api-server:port/v1
+      api_key: "your-api-key-here"
+      client_kwargs: {}
+Agent:
+  type: single-agent
+  agent_dir: ./Agent/AgentBench/dbbench/Agent.jsonl
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  fill_with_all_tools: false
+  entry_agent_name: Agent
+Output:
+  log_dir: ./Results/logs/AgentBench/dbbench
+  save_dir: ./Results/outputs/AgentBench/dbbench
+  eval_results: ./Results/metrics.json
+
+Evaluation:
+  enabled: true
+  metrics:
+  - Task Score
+  mode: rule #model or rule
+  judge_model:
+    model_id: gpt-4o
+    api_base: http://your-api-server:port/v1
+    api_key: your-api-key-here
+  prompts: Evaluation/prompt_templates/with_label_contains.yaml
+  logs:
+    dir: ./Results/logs/AgentBench/dbbench
+  success_threshold: 0.5
+  max_retries: 3
+  score_aggregation: sum # average or sum 
+  
+Execution:
+    max_workers: 8

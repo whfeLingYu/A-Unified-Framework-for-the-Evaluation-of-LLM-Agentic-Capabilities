@@ -1,0 +1,71 @@
+system: |
+  You are an impartial judge for a bargaining negotiation.
+  You MUST return a valid JSON object with keys "score" and "explanation".
+  Do not include any extra text outside JSON.
+
+evaluate: |
+  Evaluate the bargaining negotiation by assessing the seller side and buyer side separately.
+
+  The seller side corresponds to Agent1 and Agent2.
+  The buyer side corresponds to Agent3 and Agent4.
+
+  For each side, internally rate these three aspects on a strict 1-5 scale:
+  - effectiveness_of_strategies
+  - progress_and_outcome
+  - interaction_dynamics
+
+  Use the **5-point scale** below to guide your evaluation for each aspect:
+      1. **5 points**: Excellent - Exceeds expectations in this aspect.
+      2. **4 points**: Good - Meets expectations with minor improvements needed.
+      3. **3 points**: Average - Adequate but with noticeable areas for improvement.
+      4. **2 points**: Below Average - Significant issues that need addressing.
+      5. **1 point**: Poor - Does not meet the basic requirements in this aspect.
+
+  Seller side evaluation:
+    Please act as an impartial evaluator and assess the negotiation process **only for the seller** based on the provided context. Your evaluation should focus on the following three aspects:
+    - **Effectiveness of Strategies**: Did the seller demonstrate well-reasoned strategies aligned with their goals (e.g., justifying premium pricing, emphasizing product quality, or using market positioning)? Did they leverage relevant arguments such as product quality, market comparisons, or time constraints?
+    - **Progress and Outcome**: Was there significant progress toward reaching an agreement from the seller's perspective? Did the seller’s negotiation approach help in achieving a fair and realistic outcome? If no agreement was reached, were the seller's reasons clearly highlighted and justified?
+    - **Interaction Dynamics**: Were the seller’s interactions with the buyer constructive and goal-oriented? Did the seller respond effectively to the buyer’s arguments and adapt their strategies accordingly?
+    First, **identify the statements in the negotiation that were made by the seller (Agent1 & Agent2)**. Then, evaluate their performance according to the three criteria.
+   
+  Buyer side evaluation:
+    Please act as an impartial evaluator and assess the negotiation process **only for the buyer** based on the provided context. Your evaluation should focus on the following three aspects:
+    - **Effectiveness of Strategies**: Did the buyer demonstrate well-reasoned strategies aligned with their goals (e.g., negotiating for a lower price, emphasizing affordability, or comparing market alternatives)? Did they leverage relevant arguments such as product quality, price competitiveness, or budget constraints?
+    - **Progress and Outcome**: Was there significant progress toward reaching an agreement from the buyer’s perspective? Did the buyer’s negotiation approach help in achieving a fair and realistic outcome? If no agreement was reached, were the buyer’s reasons clearly highlighted and justified?
+    - **Interaction Dynamics**: Were the buyer’s interactions with the seller constructive and goal-oriented? Did the buyer respond effectively to the seller’s arguments and adapt their strategies accordingly?
+    First, **identify the statements in the negotiation that were made by the buyer (Agent3 & Agent4)**. Then, evaluate their performance according to the three criteria.
+
+  Required evaluation process:
+  - First identify which negotiation statements belong to the seller side and which belong to the buyer side.
+  - Rate the seller side on the three aspects.
+  - Rate the buyer side on the three aspects.
+  - Compute:
+    seller_avg = (seller_effectiveness_of_strategies + seller_progress_and_outcome + seller_interaction_dynamics) / 3
+    buyer_avg = (buyer_effectiveness_of_strategies + buyer_progress_and_outcome + buyer_interaction_dynamics) / 3
+    final_score = (seller_avg + buyer_avg) / 2
+  - Be strict. Deduct points for weak strategy, low progress, poor responsiveness, unsupported claims, or unproductive negotiation behavior.
+  - Do not output seller or buyer scores as separate JSON objects.
+  - The explanation must explicitly include all six aspect scores, both side averages, and the final score in plain text.
+  - Use this exact pattern inside the explanation:
+    seller_effectiveness_of_strategies=<score>, seller_progress_and_outcome=<score>, seller_interaction_dynamics=<score>, seller_avg=<score>; buyer_effectiveness_of_strategies=<score>, buyer_progress_and_outcome=<score>, buyer_interaction_dynamics=<score>, buyer_avg=<score>; final_score=<score>
+  - After listing the scores, briefly explain the main reasons for the ratings.
+  - Keep the explanation concise but specific.
+
+  Output JSON format:
+  {{
+    "score": final_score,
+    "explanation": "seller_effectiveness_of_strategies=<score>, seller_progress_and_outcome=<score>, seller_interaction_dynamics=<score>, seller_avg=<score>; buyer_effectiveness_of_strategies=<score>, buyer_progress_and_outcome=<score>, buyer_interaction_dynamics=<score>, buyer_avg=<score>; final_score=<score>. short justification"
+  }}
+
+  The `score` must be a number on the 1-5 scale, equal to the average of seller_avg and buyer_avg.
+  
+  ---
+  
+  Instruction:
+    {instruction}
+
+  Agent final output:
+    {result}
+
+  Memory:
+    {final_memory}

@@ -1,0 +1,1 @@
+{"name": "BrowseCompAgent", "agent_type": "ToolCallingAgent", "description": "Minimal agent for BrowseComp QA", "tools": ["browsecomp_web_search"], "system_prompt": "./Benchmark/browsecomp/system.md"}

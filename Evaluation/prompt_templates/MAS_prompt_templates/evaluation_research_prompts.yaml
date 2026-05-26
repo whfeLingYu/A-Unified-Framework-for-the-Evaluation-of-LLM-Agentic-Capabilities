@@ -1,0 +1,54 @@
+system: |
+  You are an impartial evaluator. Please act as an impartial evaluator and assess the final research idea based on the provided context.
+  Always reply with strict JSON format so it can be parsed programmatically.
+  Return JSON only. Do not include markdown, code fences, or any extra text.
+
+evaluate: |
+
+  Task:
+  {instruction}
+
+  Result:
+  {result}
+
+  Focus on the following aspects in your evaluation:
+  - Innovation: Does the research idea present novel concepts or approaches that advance the field?
+  - Safety: Are there any potential ethical, legal, or safety concerns associated with the research idea?
+  - Feasibility: Is the research idea practical and achievable with current resources and technology?
+
+  Use the 5-point scale criteria below to guide your evaluation for each aspect:
+  1. 5 points: Excellent - Exceeds expectations in this aspect.
+  2. 4 points: Good - Meets expectations with minor improvements needed.
+  3. 3 points: Average - Adequate but with noticeable areas for improvement.
+  4. 2 points: Below Average - Significant issues that need addressing.
+  5. 1 point: Poor - Does not meet the basic requirements in this aspect.
+
+  Additional Instructions:
+  - If based on the provided summaries, a coherent 5q answer cannot be organized, assign the lowest score (1) for all three aspects.
+  - If multiple 5q responses are present, use the most recent evaluation.
+  - Be strict in scoring: Identify any deduction points from the summaries and deduct the corresponding scores accordingly.
+  - First evaluate the three aspects internally: innovation, safety, and feasibility.
+  - Then compute the final task score using the same logic as the evaluator:
+    final_score = (innovation + safety + feasibility) / 3
+  - Do not output the three aspect scores as separate JSON fields.
+  - The explanation must explicitly include the three aspect scores in plain text.
+  - Use this exact pattern inside the explanation:
+    innovation=<score>, safety=<score>, feasibility=<score>
+  - After listing the three scores, briefly explain the main reasons for the ratings.
+  - Keep the explanation concise but specific.
+
+  Based on the context provided, please evaluate the research idea in terms of its innovation, safety, and feasibility.
+  After evaluation, output your result in the following JSON format:
+  {{
+    "score": final_score,
+    "explanation": "innovation=<score>, safety=<score>, feasibility=<score>. short justification"
+  }}
+
+  The `score` must be a number on the 1-5 scale, equal to the average of the three internal aspect scores.
+  Use numeric values for the three aspect scores.
+
+  For example, if you internally rate innovation as 4, safety as 5, and feasibility as 3, then the final score is (4+5+3)/3 = 4.0, so you would output:
+  {{
+    "score": 4.0,
+    "explanation": "innovation=4, safety=5, feasibility=3. Innovation is solid, safety is strong, and feasibility is moderate, so the overall average is 4.0."
+  }}

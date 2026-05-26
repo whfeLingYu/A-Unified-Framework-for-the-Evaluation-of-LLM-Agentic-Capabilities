@@ -1,0 +1,324 @@
+# ===================================================================
+# Evaluation-Focused Configuration Template
+# ===================================================================
+# Template optimized for comprehensive evaluation and benchmarking.
+# Includes multiple evaluation modes and detailed metrics.
+
+Benchmark:
+  path: ./Benchmark/AgentBench/dbbench/standard.jsonl
+  type: single-agent multi-round
+  per_task_tools: false
+
+  # For development: test on subset
+  # start_idx: 1
+  # end_idx: 10
+
+  # For production: run all
+  start_idx: null
+  end_idx: null
+
+Toolkit:
+  path: ./Toolkit/AgentBench/dbbench
+
+Environment:
+  path: ./Environment/AgentBench/dbbench
+  type: per-task
+
+Model:
+  provider: openai-server
+
+  parameters:
+    temperature: 0.0  # Deterministic for reproducibility
+    top_p: null
+    max_tokens: 4096
+    timeout: 60
+
+  providers:
+    openai-server:
+      model_id: gpt-4o-mini
+      api_base: https://api.openai.com/v1
+      api_key: "your-api-key-here"
+      client_kwargs: {}
+
+Agent:
+  type: single-agent
+  agent_dir: ./Agent/AgentBench/dbbench/Agent.jsonl
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  fill_with_all_tools: false
+  max_attempts: 3
+
+Output:
+  log_dir: ./Results/logs/AgentBench/dbbench
+  save_dir: ./Results/outputs/AgentBench/dbbench
+  eval_results: ./Results/evaluation_metrics.json
+
+  # Save environment states for error analysis
+  include_environment: true
+  environment_archive_dir: ./Results/environment/dbbench
+
+# ===================================================================
+# Comprehensive Evaluation Configuration (for eval_best.py)
+# ===================================================================
+Evaluation:
+  # Evaluation type - determines which evaluation method to use
+  # Options:
+  #   - "actions": Environment state-based evaluation (hash comparison of files)
+  #                Requires: task.actions field in benchmark
+  #   - "llm": LLM judge-based evaluation (semantic understanding)
+  #            Requires: task.label field in benchmark
+  #   - "both" or "all": Use both methods if available
+  #                      Score = action_score * llm_score (if both present)
+  type: actions  # Change to "llm" for open-ended tasks, "both" for comprehensive
+
+  # Directory to save evaluation results
+  # eval_best.py will create files like: eval_results_{model}_{timestamp}.jsonl
+  save_dir: ./Evaluation/results
+
+  # LLM Judge Configuration
+  # Required ONLY when type is "llm", "both", or "all"
+  # Comment out this section if using type: actions only
+  server:
+    # Model identifier for the judge (use strong model for better evaluation)
+    model_id: gpt-4o
+
+    # API endpoint
+    api_base: https://api.openai.com/v1
+
+    # API authentication key
+    api_key: "your-api-key-here"
+
+    # Path to evaluation prompt template (YAML file)
+    # Template should contain 'system' and 'evaluate' fields
+    # Available placeholders: {instruction}, {label}, {final_memory}, {result}, {log}
+    judge_prompt_template: Evaluation/prompt_templates/comprehensive_eval.yaml
+
+    # Optional: Direct system prompt (overridden by template if provided)
+    # system: "You are an expert evaluator assessing agent task performance."
+
+    # Optional: Direct evaluation template (overridden by template file if provided)
+    # evaluate: |
+    #   Task: {instruction}
+    #   Expected: {label}
+    #   Agent Result: {result}
+    #
+    #   Evaluate and return JSON: {{"score": 0.0-1.0, "reasoning": "..."}}
+
+
+# ===================================================================
+# Result Configuration (for eval_best.py to find logs)
+# ===================================================================
+Result:
+  # Directory containing execution logs
+  # eval_best.py will search for *.jsonl files here
+  log_dir: ./Results/logs/AgentBench/dbbench
+
+  # Directory containing result output files
+  # eval_best.py will also search here as fallback
+  save_dir: ./Results/outputs/AgentBench/dbbench
+
+  # Directory where environment archives are stored (post-execution)
+  # Used for hash comparison in actions-based evaluation
+  environment_archive_dir: ./Results/environment/AgentBench/dbbench
+
+  # Optional: Filter logs by run timestamp
+  # Format: YYYYMMDD_HHMMSS (e.g., 20260128_120000) or just YYYYMMDD
+  # If specified, only logs with matching timestamp will be evaluated
+  # run_timestamp: 20260128_120000
+
+  # Optional: Filter logs by model identifier
+  # If specified, only logs with matching model name will be evaluated
+  # model_tag: gpt-4o-mini
+
+Execution:
+  max_workers: 8  # Parallel execution for faster evaluation
+  task_timeout: 300  # 5 minutes per task
+  continue_on_error: true  # Don't stop on individual task failures
+
+# ===================================================================
+# Evaluation Configuration Guide:
+# ===================================================================
+#
+# 1. Choosing Evaluation Type:
+#
+#    Use "rule" when:
+#    ✓ Tasks have definite correct answers
+#    ✓ Results can be compared exactly (strings, numbers)
+#    ✓ Success criteria are objective
+#    ✓ Examples: database queries, math problems, API calls
+#
+#    Use "llm"/"model" when:
+#    ✓ Tasks are open-ended
+#    ✓ Results need semantic understanding
+#    ✓ Multiple correct answers exist
+#    ✓ Examples: dialogue, summarization, creative tasks
+#
+# 2. Metrics Explained:
+#
+#    - Task Score: Overall quality score (0.0-1.0)
+#      Calculated based on result correctness and task requirements
+#
+#    - Success Rate: Percentage of successfully completed tasks
+#      Binary metric: either pass (1) or fail (0)
+#
+#    - Tool Accuracy: Correctness of tool selection and usage
+#      Measures if agent used the right tools with right parameters
+#
+#    - Execution Time: Average time per task
+#      Lower is better (but don't sacrifice quality)
+#
+#    - Token Count: Total tokens used (input + output)
+#      Indicator of API cost and efficiency
+#
+#    - Tool Call Count: Number of tool invocations
+#      Measures agent's efficiency (fewer calls often better)
+#
+#    - Error Rate: Percentage of tasks with errors
+#      Includes exceptions, timeouts, and tool failures
+#
+# 3. Rule-Based Evaluation Methods:
+#
+#    a) Exact Match:
+#       result == expected_result
+#       Example: "42" == "42" → score: 1.0
+#
+#    b) Contains Check:
+#       expected in result
+#       Example: "Paris" in "The capital is Paris" → score: 1.0
+#
+#    c) Numeric Tolerance:
+#       abs(result - expected) < epsilon
+#       Example: |3.14 - 3.14159| < 0.01 → score: 1.0
+#
+#    d) Regex Match:
+#       re.match(pattern, result)
+#       Example: r'\d{3}-\d{3}-\d{4}' matches phone numbers
+#
+#    e) Custom Function:
+#       user_defined_validator(result, expected)
+#
+# 4. LLM-Based Evaluation Setup:
+#
+#    Create evaluation prompt template (YAML):
+#
+#    system_prompt: |
+#      You are an expert evaluator assessing agent task performance.
+#      Rate the quality of the agent's response on a scale of 0-1.
+#
+#    evaluation_prompt: |
+#      Task: {task_description}
+#      Expected Outcome: {expected_result}
+#      Agent's Result: {agent_result}
+#
+#      Evaluate based on:
+#      1. Correctness: Does it solve the task?
+#      2. Completeness: Is all required information included?
+#      3. Quality: Is the response well-structured and clear?
+#
+#      Provide:
+#      - Score: [0.0 to 1.0]
+#      - Reasoning: [Brief explanation]
+#
+#      Format your response as JSON:
+#      {"score": 0.85, "reasoning": "..."}
+#
+#    scoring_rubric:
+#      excellent: 0.9-1.0  # Exceeds expectations
+#      good: 0.7-0.89      # Meets requirements
+#      acceptable: 0.5-0.69 # Partially correct
+#      poor: 0.3-0.49      # Significant issues
+#      fail: 0.0-0.29      # Does not solve task
+#
+# 5. Multi-Dimensional Evaluation:
+#
+#    Evaluate different aspects with weights:
+#
+#    dimensions:
+#      correctness:
+#        weight: 0.5      # 50% of total score
+#        threshold: 0.9   # Must score >= 0.9
+#        evaluator: rule  # or "model"
+#
+#      efficiency:
+#        weight: 0.3      # 30% of total score
+#        threshold: 0.7
+#        evaluator: rule
+#        metric: tool_call_count  # Fewer is better
+#
+#      safety:
+#        weight: 0.2      # 20% of total score
+#        threshold: 0.95
+#        evaluator: model
+#        prompt: safety_eval.yaml
+#
+#    Final score = 0.5×correctness + 0.3×efficiency + 0.2×safety
+#
+# 6. Reproducibility Tips:
+#
+#    For consistent evaluation results:
+#    ✓ Set temperature: 0.0 for both agent and judge
+#    ✓ Use same model version (include version in model_id)
+#    ✓ Set max_workers: 1 for deterministic ordering
+#    ✓ Fix random seeds if using sampling
+#    ✓ Use rule-based evaluation when possible
+#    ✓ Save all logs with include_environment: true
+#
+# 7. Cost Optimization:
+#
+#    Reduce evaluation costs:
+#    - Use rule-based evaluation when applicable (free)
+#    - Use cheaper model for judging (gpt-4o-mini vs gpt-4o)
+#    - Cache evaluation results to avoid re-evaluation
+#    - Sample tasks for quick iteration (start_idx/end_idx)
+#    - Batch evaluate instead of real-time evaluation
+#
+# 8. Error Analysis:
+#
+#    When tasks fail, analyze:
+#    - Check logs: Results/logs/task_X_log.txt
+#    - Review tool calls: Did agent use correct tools?
+#    - Check environment: Was necessary data available?
+#    - Verify prompts: Is agent instruction clear?
+#    - Test timeout: Was time sufficient?
+#
+#    Common failure patterns:
+#    - Wrong tool selection → improve agent prompt
+#    - Incorrect parameters → add parameter examples
+#    - Timeout → increase task_timeout
+#    - Missing data → verify environment setup
+#    - API errors → check rate limits and retry logic
+#
+# 9. Benchmark Comparison:
+#
+#    To compare models fairly:
+#    1. Use identical configurations except model
+#    2. Set temperature: 0.0 for determinism
+#    3. Run on same task set (same start_idx/end_idx)
+#    4. Use rule-based eval to avoid judge bias
+#    5. Report: score, time, tokens, success rate
+#    6. Run multiple times and average for stability
+#
+# 10. Output Files:
+#
+#     After evaluation, find results in:
+#
+#     ./Results/evaluation_metrics.json:
+#     {
+#       "model": "gpt-4o-mini",
+#       "benchmark": "AgentBench/dbbench",
+#       "total_tasks": 100,
+#       "successful_tasks": 85,
+#       "metrics": {
+#         "Task Score": 0.827,
+#         "Success Rate": 0.85,
+#         "Average Time": 12.3,
+#         "Token Count": 234567
+#       }
+#     }
+#
+#     ./Evaluation/results/:
+#     - detailed_scores.jsonl (per-task breakdown)
+#     - error_analysis.json (failure patterns)
+#     - comparison.csv (if comparing multiple models)

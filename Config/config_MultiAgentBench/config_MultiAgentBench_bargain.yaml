@@ -1,0 +1,50 @@
+Benchmark:
+  path: ./Benchmark/MultiAgentBench/bargain/bargaining_standardized_merged.jsonl
+  type: multi-agent task
+  per_task_tools: false
+  # start_idx: 0
+  # end_idx: 1
+
+Toolkit:
+  path: ./Toolkit/MultiAgentBench/bargain
+
+Environment:
+  path: ./Environment/MultiAgentBench/bargain
+  type: per-task
+
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.0
+  providers:
+    openai-server:
+      model_id: gpt-4o-mini  
+      api_base: http://your-api-server:port/v1
+      api_key: your-api-key-here
+
+
+Agent:
+  type: multi-agent
+  agent_dir: ./Agent/MultiAgentBench/bargain/MultiAgent.jsonl
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  fill_with_all_tools: false
+  entry_agent_name: Agent1
+
+Output:
+  log_dir: ./Results/logs/MultiAgentBench/bargain
+  save_dir: ./Results/outputs/MultiAgentBench/bargain
+
+Evaluation:
+  type: llm
+  save_dir: ./Results/evaluations/MultiAgentBench/bargain
+  server:
+    model_id: gemini-3-flash-preview
+    api_base: http://your-api-server:port/v1
+    api_key: "your-api-key-here" 
+    # api_key: "your-api-key-here"
+    judge_prompt_template: Evaluation/prompt_templates/MAS_prompt_templates/evaluator_bargain_prompts.yaml
+  
+

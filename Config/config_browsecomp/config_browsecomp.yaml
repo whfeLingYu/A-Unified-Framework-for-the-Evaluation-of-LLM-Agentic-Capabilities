@@ -1,0 +1,36 @@
+Benchmark:
+  path: ./Benchmark/browsecomp/filtered_decrypted_formatted.jsonl
+  type: single-agent multi-round
+  # start_idx: 0
+  # end_idx: 1
+  # start_idx: 0
+  # end_idx: 1
+Toolkit:
+  path: ./Toolkit/browsecomp  # no task-specific tools required for BrowseComp; keep empty toolbox
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.0
+    top_p: null
+    timeout: 60
+  providers:
+    openai-server:
+      model_id: Qwen3-30B-A3B-Instruct-2507
+      api_base: http://your-api-server:port/v1
+      api_key: "your-api-key-here"
+      client_kwargs: {}
+Agent:
+  type: single-agent multi-round
+  agent_dir: ./Agent/browsecomp/tool_calling.jsonl
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  fill_with_all_tools: false
+Output:
+  log_dir: ./Results/logs/browsecomp/new
+  save_dir: ./Results/outputs/browsecomp/new
+  log_dir: ./Results/logs/browsecomp/new
+  save_dir: ./Results/outputs/browsecomp/new
+Evaluation:
+  enabled: false

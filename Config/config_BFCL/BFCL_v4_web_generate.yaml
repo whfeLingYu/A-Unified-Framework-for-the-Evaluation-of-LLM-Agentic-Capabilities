@@ -1,0 +1,83 @@
+Benchmark:
+  path: ./Benchmark/BFCL/BFCL_v4_web_search.jsonl
+  type: single-agent multi-round
+  per_task_tools: true  
+  start_idx: 20
+  end_idx: 100
+
+
+Toolkit:
+  path:  ./Toolkit/BFCL/generated_tools/BFCL_v4_web_generate
+  generated_dir: ./Toolkit/BFCL/generated_tools/BFCL_v4_web_generate
+
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.0
+    max_tokens: 4096
+    timeout: 60
+  providers:
+    openai-server:
+      model_id: gemini-3-pro-preview
+      api_base: http://your-api-server:port/v1
+      api_key: your-api-key-here
+      temperature: 0.0
+      
+Environment:
+  path: ./Environment/BFCL/web
+  type: none
+  output_file: ./Environment/BFCL/web/generated_environment_data.jsonl  
+
+Agent:
+  type: single-agent multi-round
+  agent_dir: ./Agent/BFCL
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  fill_with_all_tools: true
+  system_prompt: |
+    You are an environment data generator for web search tasks.
+    
+    For each task, you MUST follow these steps in order:
+    1. FIRST call WebSearchAPI_set_task_info to set task metadata (task_id, instruction, label)
+    2. Search for relevant information using WebSearchAPI_live_search with MULTIPLE different keywords:
+       - Break down the question into sub-queries for multi-hop questions
+       - Search for each key concept mentioned in the question
+       - Search for intermediate information needed to answer the question
+       - Create multiple keyword variations to maximize coverage
+    3. FINALLY call WebSearchAPI_save_environment to save all collected data
+    
+    IMPORTANT:
+    - You MUST call WebSearchAPI_save_environment BEFORE calling final_answer.
+    - DO NOT call final_answer until you have successfully saved the environment data.
+    - If you are ready to answer, call WebSearchAPI_save_environment FIRST, then answer.
+    - Use the actual task_id provided in the user prompt (do NOT simply use 0).
+    
+      
+    IMPORTANT for multi-hop questions(Strategy for answering Multi-hop Questions):
+      Decomposition: Break down the complex question into simple, sequential sub-questions.
+      Step-by-Step Search:
+        Step 1: Identify the key entities in the question. Search for their background if ambiguous.
+        Step 2: Use the information from Step 1 to construct the search query for the next logical step.
+        Step 3: Combine the information to form the final answer.
+      Example: For "Who is the wife of the actor who played Iron Man?", do NOT search the whole sentence.
+        Search 1: "Who played Iron Man?" -> Result: Robert Downey Jr.
+        Search 2: "Robert Downey Jr. wife" -> Result: Susan Downey.
+    
+   
+    Example workflow for "Who is the president of the university where the 2024 Nobel Literature winner studied?":
+    1. WebSearchAPI_set_task_info(task_id=task_id, instruction="...", label="...")
+    2. WebSearchAPI_live_search(keywords="2024 Nobel Prize Literature winner")
+    3. WebSearchAPI_live_search(keywords="Han Kang education university")
+    4. WebSearchAPI_live_search(keywords="Han Kang alma mater")
+    5. WebSearchAPI_live_search(keywords="Yonsei University president 2025")
+    6. WebSearchAPI_fetch_url_content_live(url="relevant_url")
+    7. WebSearchAPI_save_environment()
+
+Output:
+  log_dir: ./Results/logs/BFCL/BFCL_v4_web_search_generate
+  save_dir: ./Results/outputs/BFCL/BFCL_v4_web_search_generate
+
+Evaluation:
+  enabled: false

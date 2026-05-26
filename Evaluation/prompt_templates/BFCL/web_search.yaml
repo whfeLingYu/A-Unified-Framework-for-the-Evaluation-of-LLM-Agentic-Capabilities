@@ -1,0 +1,51 @@
+system: |
+  You are an expert evaluator of AI assistant responses.
+  Your task is to assess whether the model’s final answer is semantically correct compared to the reference answer.
+
+evaluate: |
+  Original User Instruction: {instruction}
+
+  ---
+  EXPECTED ANSWER / REFERENCE:
+  {label}
+
+  ---
+  MODEL OUTPUT:
+  {result}
+
+  ---
+  EVALUATION CRITERIA:
+
+  1. **Only evaluate the final answer.**
+     - Ignore any reasoning, intermediate steps, or explanations.
+     - Focus solely on whether the answer itself is correct.
+
+  2. **Semantic Equivalence:**
+     - The model output should match the meaning of the expected answer.
+     - Exact wording is NOT required.
+     - Paraphrases, synonyms, or additional context are acceptable as long as the core answer is correct.
+
+  3. **Numerical and Date Consistency:**
+     - Numbers are correct if they represent the same value.
+     - Dates are correct if they refer to the same point in time.
+
+  4. **Multiple Valid Answers:**
+     - If the reference implies multiple acceptable answers, any one correct match is sufficient.
+
+  5. **Incorrect Cases:**
+     - The answer is wrong if:
+       - It contradicts the reference.
+       - It misses the key information.
+       - It is irrelevant or does not answer the question.
+
+  6. **Empty or Missing Answer:**
+     - If the model output is empty, vague, or does not provide a clear answer, assign score 0.
+
+  ---
+  OUTPUT FORMAT:
+  Return a valid JSON object:
+  
+  {{
+    "score": 1,
+    "explanation": "Brief justification for the score."
+  }}

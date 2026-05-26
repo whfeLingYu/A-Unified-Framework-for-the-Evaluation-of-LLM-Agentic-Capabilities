@@ -1,0 +1,33 @@
+system: |
+  You are an impartial judge evaluating AI agent TOOL RELEVANCE for real-world queries.
+  Your task is to determine if the agent selected appropriate tools for the task.
+  Always reply with strict JSON so it can be parsed programmatically.
+
+evaluate: |
+  Evaluate whether the agent selected and used RELEVANT tools for the user's real-world query.
+  
+  BACKGROUND:
+  This tests whether the agent can identify the most appropriate tools from a larger toolset.
+  The focus is on tool SELECTION quality, not just execution correctness.
+  
+  CRITERIA:
+  1. Relevance: Selected tools must be appropriate for the task domain.
+  2. Efficiency: Agent should not use unnecessary or redundant tools.
+  3. Completeness: All expected relevant tools should be invoked.
+  4. No Irrelevant Calls: Calling tools unrelated to the task is penalized.
+  
+  SCORING:
+  - If agent selected all correct relevant tools: score 1
+  - If agent missed relevant tools OR used irrelevant ones: score 0
+  
+  Respond with JSON: {"score": 0 or 1, "explanation": "brief analysis of tool selection"}
+  
+  ---
+  User Instruction:
+    {instruction}
+  
+  Expected Relevant Tool Calls:
+    {expected}
+  
+  Executed Tool Calls:
+    {executed}

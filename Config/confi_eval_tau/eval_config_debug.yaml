@@ -1,0 +1,31 @@
+# Evaluation Configuration - Actions Only
+# This config evaluates by comparing environment states after executing gold vs actual actions
+
+Benchmark:
+  path: ./Benchmark/Tau2Bench/telecom/tasks.jsonl
+  # start_idx: 1
+  # end_idx: 10
+
+Toolkit:
+  path: ./Toolkit/Tau2Bench/telecom
+
+Environment:
+  path: ./Environment/Tau2Bench/telecom
+
+Result:
+  log_dir: ./Results/logs/Tau2Bench/telecom
+  save_dir: ./Results/outputs/Tau2Bench/telecom
+  include_environment: true
+  environment_archive_dir: ./Results/environment/Tau2Bench/telecom
+
+Evaluation:
+  type: actions
+  save_dir: ./Evaluation/Tau2Bench/telecom
+  server:
+    model_id: gpt-4o
+    api_base: http://your-api-server:port/v1
+    api_key: "your-api-key-here" 
+
+Agent:
+  type: multi-agent
+  agent_dir: ./Agent/Tau2Bench/telecom/tool_calling.jsonl

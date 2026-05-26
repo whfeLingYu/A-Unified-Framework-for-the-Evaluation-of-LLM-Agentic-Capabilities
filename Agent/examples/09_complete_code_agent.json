@@ -1,0 +1,49 @@
+{
+  "name": "CompleteCodeAgent",
+  "description": "完整配置的CodeAgent示例，用于Python代码执行和数据分析",
+  "agent_type": "CodeAgent",
+  "system_prompt": "You are an expert Python programmer and data analyst. You write clean, efficient Python code to solve problems. You have access to popular data science libraries like numpy, pandas, matplotlib, and scipy. Always test your code and handle errors gracefully.",
+  "tools": [
+    "load_csv",
+    "load_json",
+    "save_file",
+    "read_file",
+    "list_directory"
+  ],
+  "max_steps": 30,
+  "planning_interval": 5,
+  "max_tool_threads": 1,
+  "stream_outputs": true,
+  "verbosity_level": 1,
+  "provide_final_answer_only": false,
+  "provide_run_summary": true,
+  "max_output_length": 8000,
+  "additional_authorized_imports": [
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "matplotlib.pyplot",
+    "seaborn",
+    "scipy",
+    "sklearn",
+    "json",
+    "csv",
+    "datetime",
+    "math",
+    "statistics",
+    "collections",
+    "itertools",
+    "re"
+  ],
+  "max_iterations": 15,
+  "code_execution_timeout": 60,
+  "return_intermediate_outputs": false,
+  "memory_bank_size": 100,
+  "metadata": {
+    "version": "1.0",
+    "author": "Framework Team",
+    "tags": ["complete", "code-agent", "data-analysis", "python"],
+    "created_at": "2024-01-28",
+    "description": "完整的CodeAgent配置示例，适用于数据分析任务"
+  }
+}

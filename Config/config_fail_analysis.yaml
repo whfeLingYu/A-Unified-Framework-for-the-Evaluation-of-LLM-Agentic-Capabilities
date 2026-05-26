@@ -1,0 +1,53 @@
+# =====================================================================
+# Configuration for fail_analysis.py
+#
+# Run modes:
+#   auto   - scan log_dir / eval_dir, match by model name + timestamp,
+#            and write per-pair fail-analysis files into output_dir.
+#   manual - run on the explicit (logs[i], evals[i], outputs[i]) triples.
+#   cli    - take a single (log, eval, output) from command-line flags.
+#
+# Override mode at runtime: `python fail_analysis.py --config <path> --mode cli`
+# =====================================================================
+
+run:
+  mode: auto                # one of: auto | manual | cli
+
+# ---------- auto mode ----------
+auto:
+  log_dir:    /path/to/Failed-Analis/log/MAB/dbbench
+  eval_dir:   /path/to/Failed-Analis/eval/MAB/dbbench
+  output_dir: /path/to/Failed-Analis/fail/MAB/dbbench
+
+# ---------- manual mode ----------
+manual:
+  logs:
+    - /path/to/Failed-Analis/log/MAB/dbbench/gemini-3-flash-preview_results_20260416_111112.jsonl
+  evals:
+    - /path/to/Failed-Analis/eval/MAB/dbbench/eval_results_gemini-3-flash-preview_20260416_111112.jsonl
+  outputs:
+    - /path/to/Failed-Analis/fail/MAB/dbbench/fail_analysis_gemini-3-flash-preview_20260416_111112.jsonl
+
+# ---------- LLM API ----------
+api:
+  api_base:   http://your-api-server:port/v1
+  model_name: Qwen3-30B-A3B-Instruct-2507
+  max_retries: 5
+  timeout:    120
+
+# ---------- Failure threshold ----------
+threshold:
+  fail_threshold: 1.0
+  # Optional: split by task_id. If true, task_id > task_id_boundary uses high_threshold.
+  use_task_id_threshold: true
+  task_id_boundary: 50
+  high_threshold:  2.0
+
+# ---------- Category map (LLM index -> human name) ----------
+category_map:
+  "1": Parsing Failure
+  "2": Tool Invocation Error
+  "3": Reasoning Deficit
+  "4": Timeout
+  "5": Iteration Limit Exceeded
+  "6": Context Overflow

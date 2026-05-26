@@ -1,0 +1,42 @@
+system: |
+  You are an impartial judge specialized in Knowledge Graph (KG) reasoning.
+  Your task is to determine if the assistant's response correctly extracts the requested entities or values from the graph.
+  Always reply in strict JSON format.
+
+evaluate: |
+  You will be given a task instruction, the assistant's final response, reference answers (lable), and the assistant's tool execution log (log).
+
+  ## Scoring Rules
+  1. **JSON Output**: Your reply must be valid JSON with keys "score" (0 or 1) and "explanation".
+  2. **Score=1 Standard**: The response must be fully accurate, contain the required Entity IDs or Numbers, and align perfectly with the tool execution steps in the log.
+
+  ## KG Evaluation Criteria
+
+  ### 1. Entity ID / List Match
+  * If the `lable` contains KG Entity IDs (e.g., ["m.0xxxx"]):
+    * **Direct Match**: The `response` or the `final_answer` call in the `log` must contain these exact IDs.
+    * **List Completeness**: For multiple answers, the assistant must have identified ALL IDs listed in the `lable`. Missing any ID results in score=0.
+  
+  ### 2. Numeric / Count Match
+  * If the `lable` is a number (e.g., ["5"]):
+    * **Exact Value**: The assistant's `response` must state this exact number.
+    * **Derivation**: The `log` should show a `count_tool` or an `intersection_tool` result that justifies this number.
+
+  ### 3. Log Logic Consistency
+  * **Tool Sequence**: The `log` must show the assistant resolving names to IDs via `get_entities_info_tool` (if IDs weren't in the prompt) and traversing relations.
+  * **Final Answer Action**: The `final_answer` executed in the `log` must match the information provided in the final `response`. 
+  * **Constraint Handling**: If the instruction had constraints (e.g., "most recently", "in the same category"), the `log` must show tools like `argmax`, `argmin`, or `intersection` being used to satisfy them.
+
+  ---
+
+  Instruction:
+    {instruction}
+
+  Reference answers (lable):
+    {lable}
+
+  Assistant output (response):
+    {response}
+
+  Assistant log summary (log):
+    {log}

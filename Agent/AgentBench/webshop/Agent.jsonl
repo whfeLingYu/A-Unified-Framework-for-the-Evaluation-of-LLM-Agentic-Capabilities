@@ -1,0 +1,6 @@
+
+{
+    "name": "Agent",
+    "description": "Agent is a tool calling agent that can use various tools to help users complete tasks.",
+    "tools": ["search_products","get_product_details","select_product"]
+}

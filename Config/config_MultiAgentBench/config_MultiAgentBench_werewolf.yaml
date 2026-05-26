@@ -1,0 +1,43 @@
+Benchmark:
+  path: ./Benchmark/MultiAgentBench/werewolf/werewolf_merged.jsonl
+  type: multi-agent task
+  per_task_tools: false
+  start_idx: 0
+  end_idx: 9
+
+Toolkit:
+  path: ./Toolkit/MultiAgentBench/werewolf
+
+Environment:
+  path: ./Environment/MultiAgentBench/werewolf
+  type: per-task
+
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.0
+  providers:
+    openai-server:
+      model_id: gpt-4o-mini
+      api_base: http://your-api-server:port/v1
+      api_key: "your-api-key-here"
+      client_kwargs: {}
+
+Agent:
+  type: multi-agent
+  agent_dir: ./Agent/MultiAgentBench/werewolf/MultiAgent.jsonl
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  fill_with_all_tools: false
+  entry_agent_name: Manager
+
+Output:
+  log_dir: ./Results/outputs/MultiAgentBench/werewolf
+  save_dir: ./Results/outputs/MultiAgentBench/werewolf
+
+Evaluation:
+  enabled: true
+  metrics:
+  - Task Score

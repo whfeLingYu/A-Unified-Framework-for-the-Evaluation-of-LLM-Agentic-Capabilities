@@ -1,0 +1,98 @@
+# ===================================================================
+# Local Model Configuration Template
+# ===================================================================
+# Template for running with locally deployed open-source models.
+# Suitable for research and development without API costs.
+
+Benchmark:
+  path: ./Benchmark/AgentBench/dbbench/standard.jsonl
+  type: single-agent multi-round
+  start_idx: null
+  end_idx: null
+
+Toolkit:
+  path: ./Toolkit/AgentBench/dbbench
+
+Environment:
+  path: ./Environment/AgentBench/dbbench
+  type: per-task
+
+Model:
+  # Choose your deployment method: transformers or vllm
+  provider: vllm  # or "transformers"
+
+  parameters:
+    temperature: 0.0
+    max_tokens: 4096
+
+  providers:
+    # Option 1: vLLM (Recommended for production/high throughput)
+    vllm:
+      model_id: meta-llama/Llama-3.1-70B-Instruct
+      tensor_parallel_size: 4        # Number of GPUs (adjust based on your setup)
+      dtype: float16                  # float16 or bfloat16
+      gpu_memory_utilization: 0.9     # 0.0-1.0
+      max_model_len: 8192             # Maximum context length
+      trust_remote_code: true
+
+    # Option 2: Transformers (Easier for development/debugging)
+    transformers:
+      model_id: meta-llama/Llama-3.1-8B-Instruct
+      device: cuda                    # cuda, cpu, or mps (for Mac M1/M2)
+      torch_dtype: float16            # float32, float16, or bfloat16
+      load_in_8bit: false             # Set true for 8-bit quantization
+      load_in_4bit: false             # Set true for 4-bit quantization
+      trust_remote_code: true
+      use_flash_attention: false      # Enable if supported
+
+Agent:
+  type: single-agent
+  agent_dir: ./Agent/AgentBench/dbbench/Agent.jsonl
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  fill_with_all_tools: false
+
+Output:
+  log_dir: ./Results/logs/local_model
+  save_dir: ./Results/outputs/local_model
+  eval_results: ./Results/local_model_metrics.json
+
+Evaluation:
+  type: actions  # Use actions-based for deterministic evaluation
+  save_dir: ./Evaluation/results
+
+Result:
+  log_dir: ./Results/logs/local_model
+  save_dir: ./Results/outputs/local_model
+  environment_archive_dir: ./Results/environment/local_model
+
+Execution:
+  max_workers: 1  # Local models typically run one at a time
+  continue_on_error: true
+
+# ===================================================================
+# Notes for Local Model Deployment:
+# ===================================================================
+# 1. GPU Memory Requirements:
+#    - 7B model: ~14GB VRAM (fp16) or ~7GB (8-bit)
+#    - 13B model: ~26GB VRAM (fp16) or ~13GB (8-bit)
+#    - 70B model: ~140GB VRAM (fp16, needs 4x A100) or ~35GB (4-bit)
+#
+# 2. Installation:
+#    For vLLM:     pip install vllm
+#    For HF:       pip install transformers torch accelerate
+#    For 8/4-bit:  pip install bitsandbytes
+#
+# 3. Recommended Models:
+#    - Llama-3.1-8B-Instruct: Good balance of performance and cost
+#    - Llama-3.1-70B-Instruct: Better performance, needs multiple GPUs
+#    - Qwen2.5-72B-Instruct: Strong multilingual support
+#    - DeepSeek-V3: Cost-effective for large-scale tasks
+#
+# 4. Performance Tips:
+#    - Use vLLM for production (much faster than transformers)
+#    - Set tensor_parallel_size = number of GPUs
+#    - Use fp16 or bf16 (avoid fp32 for speed)
+#    - Enable flash attention if your GPU supports it (A100/H100)

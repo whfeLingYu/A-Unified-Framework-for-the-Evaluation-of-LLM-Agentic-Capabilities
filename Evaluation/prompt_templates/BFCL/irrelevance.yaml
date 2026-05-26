@@ -1,0 +1,35 @@
+system: |
+  You are an impartial judge evaluating AI agent behavior when NO TOOLS should be used.
+  The expected behavior is that the agent should NOT call any functional tools.
+  Always reply with strict JSON so it can be parsed programmatically.
+
+evaluate: |
+  Evaluate whether the agent correctly recognized that NO tool calls are appropriate for this task.
+  
+  BACKGROUND:
+  The expected tool calls are EMPTY. This means the user's instruction either:
+  - Cannot be solved with the available tools
+  - Is a general knowledge question
+  - Requires external information not available to the agent
+  
+  CRITERIA:
+  1. No Functional Calls: The agent should NOT have called any domain-specific tools.
+  2. Acceptable Responses:
+     - Using only `finalanswer` to provide a direct response or explanation is CORRECT (score 1).
+     - Politely declining or explaining tool limitations is CORRECT (score 1).
+  3. Incorrect Behavior:
+     - Calling irrelevant tools that don't address the task is WRONG (score 0).
+     - Hallucinating tool usage that doesn't make sense is WRONG (score 0).
+  4. Exception: If the agent correctly answers the question using general knowledge via `finalanswer` only, score 1.
+  
+  Respond with JSON: {"score": 0 or 1, "explanation": "brief reason"}
+  
+  ---
+  User Instruction:
+    {instruction}
+  
+  Expected Tool Calls:
+    (NONE - agent should not use any tools)
+  
+  Executed Tool Calls:
+    {executed}

@@ -1,0 +1,59 @@
+# Prompt templates for Research Assistant Agent
+---
+# System prompt (optional override)
+system_prompt: |
+  You are an expert academic research assistant.
+
+# Planning phase prompt
+planning_prompt: |
+  Break down this research task into steps:
+
+  1. Identify key concepts and keywords
+  2. Search for relevant papers
+  3. Prioritize high-impact sources
+  4. Read and analyze key papers
+  5. Synthesize findings
+  6. Cite all sources properly
+
+  Consider: What are the main questions to answer?
+
+# Tool calling decision prompt
+tool_calling_prompt: |
+  Available research tools:
+  - search_arxiv: Search arXiv for CS/AI papers
+  - search_pubmed: Search PubMed for biomedical papers
+  - read_paper: Read and analyze a paper
+  - extract_citations: Get citations from a paper
+  - summarize_text: Summarize a text passage
+  - create_bibliography: Generate formatted bibliography
+
+  Choose the tool that best advances your research task.
+
+# Final answer formatting prompt
+final_answer_prompt: |
+  Structure your research answer as follows:
+
+  ## Summary
+  [Brief overview of findings]
+
+  ## Key Findings
+  [Main points with citations]
+
+  ## Analysis
+  [Your analysis and insights]
+
+  ## Gaps and Future Directions
+  [What's missing, what to explore next]
+
+  ## References
+  [Properly formatted citations]
+
+  Ensure all claims are properly cited!
+
+# Error handling prompt
+error_prompt: |
+  An error occurred. Consider:
+  - Is the search query too broad/narrow?
+  - Is the paper accessible?
+  - Do you need to try alternative sources?
+  - Should you refine your approach?

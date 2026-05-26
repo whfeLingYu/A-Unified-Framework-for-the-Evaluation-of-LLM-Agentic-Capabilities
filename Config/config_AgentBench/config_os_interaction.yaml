@@ -1,0 +1,57 @@
+Benchmark:
+  path: ./Benchmark/AgentBench/os_interaction/standard_updated_instructions.jsonl
+  type: single-agent multi-round
+  name: os_interaction
+  start_idx: 1 # Optional: 1-based index of the first task to execute. Leave null to start from the beginning. (0-based internally)
+  end_idx: 5  # Optional: 1-based index of the last task to execute. Leave null to run through the end. (0-based internally)
+  per_task_tools: true  # Each task may have its own set of tools
+
+Toolkit:
+  path: ./Toolkit/AgentBench/os_interaction
+  loader: ./Toolkit/AgentBench/os_interaction/load_tools.py
+
+Environment:
+  path: ./Environment/AgentBench/os_interaction
+  type: per-task  # Each benchmark task corresponds to an environment file
+
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.0
+    top_p: null
+    max_tokens: 12800
+    timeout: 30
+  providers:
+    openai-server:
+      model_id: gpt-4o
+      api_base: https://api.openai.com/v1
+      api_key: your-api-key-here
+
+Agent:
+  type: single-agent
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  prompt_templates: None
+  fill_with_all_tools: true  # Must be true to include all loaded tools (bash_action, finish_action, answer_action)
+
+Output:
+  log_dir: ./Results/logs/AgentBench/os_interaction
+  save_dir: ./Results/outputs/AgentBench/os_interaction
+  eval_results: ./Results/evaluations/os_interaction_metrics.json
+  include_environment: false  # Set to true if you want to include environment data in logs
+
+Evaluation:
+  enabled: true
+  metrics:
+    - Task Score
+  mode: model  # model-based evaluation (uses LLM judge to understand semantics)
+  judge_model:
+    model_id: gpt-4o  # Use the same judge model as the main model
+    api_base: https://api.openai.com/v1
+    api_key: your-api-key-here
+
+Retry:
+  max_attempts: 1  # Number of retry attempts for failed tasks
+

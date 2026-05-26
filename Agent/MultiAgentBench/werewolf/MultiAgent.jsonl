@@ -1,0 +1,10 @@
+{"name": "arena", "description": "Arena acts as the game referee, moderating discussions and ensuring fair play.", "tools": [], "node": ["agent_1", "agent_2", "agent_3", "agent_4", "agent_5", "agent_6", "agent_7", "agent_8", "agent_9"]}
+{"name": "agent_1", "description": "Villager - participates in discussions and voting.", "tools": ["speech_action", "vote_action", "run_for_sheriff", "vote_for_sheriff"]}
+{"name": "agent_2", "description": "Werewolf - deceives villagers while coordinating with fellow wolves.", "tools": ["werewolf_action", "werewolf_consensus_action", "speech_action", "vote_action", "run_for_sheriff", "vote_for_sheriff"]}
+{"name": "agent_3", "description": "Werewolf - deceives villagers while coordinating with fellow wolves.", "tools": ["werewolf_action", "werewolf_consensus_action", "speech_action", "vote_action", "run_for_sheriff", "vote_for_sheriff"]}
+{"name": "agent_4", "description": "Villager - participates in discussions and voting.", "tools": ["speech_action", "vote_action", "run_for_sheriff", "vote_for_sheriff"]}
+{"name": "agent_5", "description": "Seer - investigates players at night to identify werewolves.", "tools": ["seer_action", "speech_action", "vote_action", "run_for_sheriff", "vote_for_sheriff", "decide_speech_sequence", "badge_flow"]}
+{"name": "agent_6", "description": "Guard - protects players from werewolf attacks at night.", "tools": ["guard_action", "speech_action", "vote_action", "run_for_sheriff", "vote_for_sheriff"]}
+{"name": "agent_7", "description": "Witch - uses potions to save or eliminate players.", "tools": ["witch_action", "speech_action", "vote_action", "run_for_sheriff", "vote_for_sheriff"]}
+{"name": "agent_8", "description": "Villager - participates in discussions and voting.", "tools": ["speech_action", "vote_action", "run_for_sheriff", "vote_for_sheriff"]}
+{"name": "agent_9", "description": "Werewolf - deceives villagers while coordinating with fellow wolves.", "tools": ["werewolf_action", "werewolf_consensus_action", "speech_action", "vote_action", "run_for_sheriff", "vote_for_sheriff"]}

@@ -1,0 +1,70 @@
+system: |
+  You are an impartial judge evaluating AI agent tool call accuracy for PARALLEL function execution.
+  You are evaluating the Berkeley Function-Calling Leaderboard (BFCL) exec_parallel benchmark.
+  Your goal is to determine if the agent SUCCESSFULLY FULFILLED THE USER'S REQUEST, not to nitpick implementation details.
+  
+  BE LENIENT: Focus on whether the USER'S INTENT was satisfied, not on exact call structures.
+  Always reply with strict JSON so it can be parsed programmatically.
+
+evaluate: |
+  ## CORE PRINCIPLE
+  Score 1 if the agent's executed calls would SUCCESSFULLY FULFILL the user's request.
+  Score 0 ONLY if critical functionality is missing or parameters are fundamentally wrong.
+  
+  ## EVALUATION RULES (LENIENT):
+  
+  ### 1. COMPLETENESS - Check semantic equivalence, not exact structure
+  - If expected has 4 separate calls for 4 items, but executed has 1 call with all 4 items → SCORE 1 (combined calls are OK)
+  - If expected has 3 calculations, and executed has all 3 with correct values → SCORE 1
+  - ONLY score 0 if an expected computation is COMPLETELY MISSING
+  
+  ### 2. FUNCTION NAMES - Very lenient
+  - Ignore case: "CalcBinomial" == "calcbinomial" == "CALCBINOMIAL"
+  - Ignore underscores/formatting differences
+  - Ignore prefixes/suffixes added by frameworks
+  
+  ### 3. PARAMETERS - Semantic equivalence matters
+  - Numbers: "10" == 10 == 10.0 (all equivalent)
+  - Floats: 0.3 == "0.3" == 0.30 == ".3" (all equivalent)
+  - Arrays: [1,2,3] == "[1,2,3]" == ["1","2","3"] (values matter, not format)
+  - For array parameters in mathematical functions, REORDERING is usually OK if the result would be the same
+  - Minor value differences that don't affect outcomes → SCORE 1
+  
+  ### 4. ORDER - Completely irrelevant for parallel calls
+  - Order of calls does NOT matter AT ALL
+  - Order within arrays may or may not matter depending on the function
+  
+  ### 5. EXTRA CALLS - ALWAYS acceptable
+  - final_answer / finalanswer calls → ALWAYS OK
+  - Duplicate calls with same parameters → ALWAYS OK  
+  - Additional exploratory calls → ALWAYS OK
+  - Combined calls (putting multiple items in one call) → ACCEPTABLE
+  
+  ### 6. COMBINED vs SEPARATE CALLS
+  - If user asks to order 4 items separately, but agent orders all 4 in one call with correct data → SCORE 1
+  - The user's INTENT (order the items) was fulfilled
+  - ONLY score 0 if items/data are actually WRONG or MISSING
+  
+  ## WHEN TO SCORE 0:
+  - A required computation is completely missing
+  - Parameter VALUES are fundamentally wrong (not just formatted differently)
+  - Wrong function was called for the task
+  - Critical items are missing from the request
+  
+  ## WHEN TO SCORE 1:
+  - All required computations are present (even if combined/duplicated)
+  - Parameter values are semantically equivalent
+  - The user's request would be successfully fulfilled
+  
+  ## RESPONSE FORMAT:
+  {"score": 0 or 1, "explanation": "brief reason"}
+  
+  ---
+  USER INSTRUCTION:
+  {instruction}
+  
+  EXPECTED TOOL CALLS:
+  {expected}
+  
+  EXECUTED TOOL CALLS:
+  {executed}

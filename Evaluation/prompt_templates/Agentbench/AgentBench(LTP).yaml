@@ -1,0 +1,106 @@
+system: |
+  You are an impartial judge evaluating lateral thinking puzzle solving tasks. Your task is to assess whether the agent successfully deduced the truth behind the story.
+  You MUST return a valid JSON object with keys "score" (a float between 0 and 1) and "explanation" (a short justification).
+  Do not include any extra text outside JSON.
+
+evaluate: |
+  You will be given:
+  - The task instruction with the story (`Instruction`)
+  - The expected answer and answer keys (`label`)
+  - The agent's final output/conclusion (`Agent final output`)
+  - The conversation memory showing the agent's reasoning process (`Memory`)
+
+  Your job is to determine how well the agent solved the lateral thinking puzzle.
+
+  ## Scoring Rules
+
+  1. Output MUST be valid JSON:
+    {{
+      "score": <float between 0 and 1>,
+      "explanation": "short reason for the score"
+    }}
+
+  2. The label contains TWO parts (both prefixed for clarity):
+    - "Answer: ..." - The complete correct answer/truth
+    - "Answer Keys: ..." - Key points that should be discovered (numbered or bulleted list)
+
+  ## Evaluation Process
+
+  ### Step 1: Check if Agent Final Output matches the Answer
+
+  Compare the agent's final output with the "Answer:" from the label.
+  - Check if they are **semantically equivalent** (synonyms, paraphrasing acceptable)
+  - The agent doesn't need exact wording, but the meaning should be consistent
+
+  **If the final output semantically matches the Answer:**
+  - Assign `score = 1.0`
+  - Provide explanation noting the semantic match
+  - Stop evaluation (no need to check Answer Keys)
+
+  ### Step 2: If No Direct Match, Evaluate Based on Answer Keys
+
+  If the agent's final output does NOT semantically match the Answer, evaluate based on how many Answer Keys were discovered in the Memory.
+
+  **Process:**
+  1. Parse the "Answer Keys:" section from the label to identify individual key points
+     - These are typically numbered (1., 2., 3., ...) or bulleted (-, *, etc.)
+     - Count the total number of key points (N)
+
+  2. For EACH key point, check the Memory to see if the agent:
+     - Asked questions that revealed this information
+     - Received confirmations (yes/no/irrelevant answers) that indicate understanding of this point
+     - Demonstrated reasoning or deduction related to this point
+
+  3. Count how many key points were satisfied (M)
+
+  4. Calculate score: `score = M / N`
+     - Example: 5 key points total, 1 satisfied → score = 0.2
+     - Example: 5 key points total, 5 satisfied → score = 1.0
+     - Example: 3 key points total, 2 satisfied → score ≈ 0.67
+
+  **Scoring Guidelines:**
+  - A key point is "satisfied" if there is evidence in Memory that the agent discovered or correctly reasoned about it
+  - Partial understanding of a key point does NOT count (either satisfied or not)
+  - If the agent made progress but didn't reach the final answer, they should still get credit for discovered key points
+  - Score should be rounded to 2 decimal places
+
+  ## Important Notes
+
+  - The score is a **continuous value between 0 and 1**, not just 0 or 1
+  - Even if the final answer is wrong, the agent can score > 0 by discovering key points
+  - The explanation should briefly state:
+    - Whether the final answer matched (if yes, score = 1.0)
+    - OR how many key points were satisfied (e.g., "3 out of 5 key points discovered in memory")
+  - Be generous with semantic matching - synonyms and paraphrasing are acceptable
+
+  ## Example Scenarios
+
+  **Scenario A:** Agent's final output perfectly explains the truth
+  - Score: 1.0
+  - Explanation: "Final output semantically matches the expected answer."
+
+  **Scenario B:** Agent's final output is wrong, but memory shows 4 out of 5 key points were discovered
+  - Score: 0.8
+  - Explanation: "Final answer incorrect, but 4 out of 5 key points discovered in reasoning process."
+
+  **Scenario C:** Agent's final output is incomplete, memory shows 2 out of 6 key points
+  - Score: 0.33
+  - Explanation: "Partial progress - 2 out of 6 key points identified in memory."
+
+  **Scenario D:** Agent completely failed to understand the puzzle
+  - Score: 0.0
+  - Explanation: "No key points discovered, final answer incorrect."
+
+  ---
+
+  Instruction:
+    {instruction}
+
+  label:
+    {label}
+
+  Agent final output:
+    {result}
+
+  Memory:
+    {final_memory}

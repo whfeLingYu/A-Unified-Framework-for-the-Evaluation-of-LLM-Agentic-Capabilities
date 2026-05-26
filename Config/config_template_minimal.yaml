@@ -1,0 +1,29 @@
+# ===================================================================
+# Minimal Configuration Template
+# ===================================================================
+# This is the simplest configuration to get started quickly.
+# Only includes required fields.
+
+Benchmark:
+  path: ./Benchmark/AgentBench/dbbench/standard.jsonl
+  type: single-agent multi-round
+
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.0
+  providers:
+    openai-server:
+      model_id: gpt-4o-mini
+      api_base: https://api.openai.com/v1
+      api_key: "your-api-key-here"
+      client_kwargs: {}
+
+Agent:
+  type: single-agent
+  agent_dir: ./Agent/AgentBench/dbbench/Agent.jsonl
+  agent_type: ToolCallingAgent
+
+Output:
+  log_dir: ./Results/logs
+  save_dir: ./Results/outputs

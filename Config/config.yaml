@@ -1,0 +1,143 @@
+Benchmark:
+  path: ./Benchmark/AgentBench/dbbench/standard_updated_instructions.jsonl
+  type: "single-agent multi-round task" # Can be: single-agent multi-round task, single-agent single-round task, multi-agent task
+  start_idx: null # Optional: 1-based index of the first task to execute. Leave null to start from the beginning.
+  end_idx: null   # Optional: 1-based index of the last task to execute. Leave null to run through the end.
+
+Toolkit:
+  path: ./Tookit/AgentBench/dbbench
+
+
+Environment:
+  path: ./Environment/AgentBench/dbbench
+  type: per-task # Can be: null,global, per-task(In this mode, each benchmark task corresponds to an environment, and the path configuration of the environment must be included in the benchmark.)
+
+Model:
+  provider: "vllm"  # Select which provider block below to activate.
+  parameters:               # Global defaults merged into all providers (override per provider if needed).
+    temperature: 0.0001
+    top_p: null
+    max_tokens: 12800
+    # do_sample: true
+    timeout: 30
+
+  providers:
+    transformers:
+      model_id: "/path/to/models/Qwen3-VL-2B-Instruct"
+      trust_remote_code: true
+      torch_dtype: "auto"
+      device_map: "auto" # Optional: "auto", "cuda", "cpu"
+      model_kwargs:
+        # --- 1. Model Loading & Quantization (模型加载与量化) ---
+        # load_in_8bit: false # Enable 8-bit quantization. Default: false. Requires bitsandbytes.
+        # load_in_4bit: false # Enable 4-bit quantization. Default: false. Requires bitsandbytes.
+        # bnb_4bit_compute_dtype: "float16" # Compute dtype for 4-bit. Options: "float16", "bfloat16", "float32".
+        # bnb_4bit_quant_type: "nf4" # Quantization type. Options: "nf4", "fp4".
+        # low_cpu_mem_usage: true # Reduce CPU memory usage during loading. Default: true if device_map is set.
+        # use_safetensors: true # Use safetensors format if available. Default: null (auto-detect).
+        # revision: "main" # Model revision (branch/tag/commit). Default: "main".
+        
+        # --- 2. Acceleration & Optimization (加速与优化) ---
+        # attn_implementation: "flash_attention_2" # Attention implementation. Options: "eager", "sdpa", "flash_attention_2".
+        # use_flash_attention_2: false # Manually enable FlashAttention-2 (deprecated, use attn_implementation).
+        # max_memory: null # Dict for per-GPU memory limit, e.g., {0: "24GB", "cpu": "64GB"}.
+        # offload_folder: null # Directory for CPU/NVMe offloading.
+
+        # --- 3. Tokenizer Configuration (分词器配置) ---
+        # padding_side: "right" # Padding side. Options: "left", "right".
+        # truncation_side: "right" # Truncation side. Options: "left", "right".
+        # use_fast: true # Use fast tokenizer (Rust-based). Default: true.
+        # model_max_length: 2048 # Default maximum input length.
+
+        # --- 4. Generation Configuration (生成参数) ---
+        # max_new_tokens: 2048 # Maximum number of new tokens to generate.
+        # do_sample: true # Whether to use sampling. Default: true.
+        # temperature: 1.0 # Sampling temperature.
+        # top_p: 1.0 # Nucleus sampling probability.
+        # top_k: 50 # Top-k sampling.
+        # repetition_penalty: 1.0 # Penalty for repeated tokens.
+        # num_beams: 1 # Number of beams for beam search.
+
+
+    vllm:
+      model_id: "/path/to/models/Qwen3-VL-2B-Instruct"
+      model_kwargs:
+        # --- 1. Model Loading & Parallelism (模型加载与并行) ---
+        tensor_parallel_size: 4 # Number of GPUs for tensor parallelism. Default: 1.
+        # pipeline_parallel_size: 1 # Number of pipeline stages. Default: 1.
+        # dtype: "auto" # Data type. Options: "auto", "float16", "bfloat16".
+        # revision: "main" # Model revision.
+        # trust_remote_code: true # Trust remote code. Default: false.
+        # quantization: null # Quantization. Options: "awq", "gptq", "squeezellm", etc.
+        
+        # --- 2. Acceleration & Kernels (加速与内核) ---
+        # enable_flash_attention: true # Enable FlashAttention-2/3. Default: true.
+        # enable_chunked_prefill: true # Optimize prefill for long prompts. Default: true.
+        # enable_prefix_caching: true # Reuse KV cache for repeated prefixes. Default: true.
+        # enforce_eager: false # Force eager mode (disable CUDA graphs). Default: false.
+        
+        # --- 3. KV Cache & Memory Management (KV Cache 与显存管理) ---
+        gpu_memory_utilization: 0.90 # Fraction of GPU memory for model & KV cache. Default: 0.90.
+        max_model_len: 4096 # Maximum context length. Default: auto-derived.
+        # block_size: 16 # KV cache block size. Default: 16.
+        # swap_space: 4 # CPU swap space (GiB) per GPU. Default: 4.
+        # kv_cache_dtype: "auto" # KV cache dtype. Options: "auto", "fp8", "fp16".
+
+        # --- 4. Batching & Scheduling (批处理与调度) ---
+        # max_num_batched_tokens: 2048 # Max tokens in a batch.
+        # max_batch_size: 32 # Max requests in a batch.
+        # scheduler_type: "fcfs" # Scheduler policy. Options: "fcfs", "fifo", "fair", "priority".
+
+        # --- 5. Generation Parameters (生成参数) ---
+        # temperature: 1.0 # Sampling temperature.
+        # top_p: 1.0 # Nucleus sampling probability.
+        # top_k: 50 # Top-k sampling.
+        # max_tokens: 2048 # Default output length.
+        # repetition_penalty: 1.0 # Penalty for repeated tokens.
+        # stop: [] # List of stop strings.
+        
+        # --- 6. Multimodal (VL Models) (多模态参数) ---
+        # max_image_tokens: 8192 # Max vision tokens per image.
+        # enable_vlm_cache: true # Enable image KV cache.
+
+        rope_scaling:  # Rope scaling configuration.
+          rope_type: "default" # Type of rope scaling. Default: "default".
+          factor: 1.0 # Scaling factor. Default: 1.0.
+
+    openai-server:
+      model_id: "Qwen3-30B-A3B-Instruct-2507"
+      api_base: "http://your-api-server:port/v1"
+      api_key: "your-api-key-here"
+      organization: null
+      project: null
+      client_kwargs: {}
+
+Agent:
+  type: "single-agent multi-round" # Can be: single-agent multi-round, single-agent single-round, multi-agent
+  agent_dir: ./Agent/AgentBench/dbbench/Agent.jsonl
+  agent_type: "ToolCallingAgent" # Can be: ToolCallingAgent, CodeAgent
+  stream_outputs: false # Whether to stream outputs during execution
+  planning_interval: -1 # The interval at which the agent will run a planning step. If -1, the agent will run default planning interval.
+  max_tool_threads: 1 # The maximum number of threads for parallel tool calls.
+  prompt_templates: None # The prompt templates to use for the agent. If None, the default prompt templates will be used.
+  max_attempts: 3
+
+Output:
+  log_dir: ./Results/logs/AgentBench/dbbench
+  save_dir: ./Results/outputs/AgentBench/dbbench
+  eval_results: ./Results/metrics.json
+
+Evaluation:
+  type: both
+  save_dir: ./Results/eval_results/
+  judge_model:
+    model_id: "gpt-4o"
+    api_base: "http://your-api-server:port/v1"
+    api_key: "your-api-key-here"
+  # system_prompt:
+
+  # evaluate_prompt:
+  
+  judge_prompt_template: null
+
+  

@@ -1,0 +1,46 @@
+system: |
+  You are a Precision Logic Evaluator for strict Memory Key-Value Retrieval tasks.
+  Your objective is to scientifically assess the accuracy of a MODEL RESULT against a GROUND TRUTH LABEL set.
+  
+  Adhere to the Principles of Precision:
+  1. **Exclusivity**: The result must not contain conflicting or hallucinated information alongside the correct answer.
+  2. **Equivalence**: The result must be semantically identical to the truth, not just "related".
+  3. ** robustness**: Format variations (case, whitespace) are acceptable; value errors are not.
+
+evaluate: |
+  ---
+  INPUT DATA:
+  Ground Truth Candidates (Acceptable Answers): {expected}
+  Model Prediction: {executed}
+
+  ---
+  EVALUATION ALGORITHM:
+
+  Step 1: **Normalization**
+  - Treat the Ground Truth as a set of acceptable synonyms/aliases. Matching ANY single item in this set constitutes a potential match.
+  - Normalize dates, numbers, and units (e.g., "twenty" == "20", "1k" == "1000", "2023-01-01" == "Jan 1, 2023").
+
+  Step 2: **Hit Verification**
+  - Does the Model Prediction contain the core information of at least one candidate from Ground Truth?
+
+  Step 3: **Pollution Check (Crucial for Strictness)**
+  - **The "Over-Claiming" Rule**: If the Model Prediction contains the correct answer BUT also includes incorrect values, alternative possibilities, or hedging that contradicts the certainty of the Ground Truth, score 0.
+    - Example: Truth=["5"], Prediction="5 or 6" -> Score 0 (Imprecise).
+    - Example: Truth=["Red"], Prediction="I think it is Red" -> Score 1 (Acceptable verbosity).
+    - Example: Truth=["Paris"], Prediction="London and Paris" -> Score 0 (Contradiction/Hallucination).
+
+  Step 4: **Refusal Validation**
+  - If Ground Truth is valid/present, but Model Prediction is a refusal ("I don't know", "Not found"), Score 0.
+  - If Ground Truth represents a "Null" or "Empty" state, and Model Prediction correctly states "Not available", Score 1.
+
+  ---
+  OUTPUT REQUIREMENTS:
+  1. Analyze the relationship between Prediction and Truth in the `reasoning` field.
+  2. Output the final decision in valid JSON format.
+
+  ```json
+  {
+    "reasoning": "Step-by-step analysis of semantic match and pollution check...",
+    "score": 0 or 1,
+    "error_type": "None" | "Miss" | "Hallucination" | "Format_Mismatch"
+  }

@@ -1,0 +1,64 @@
+Benchmark:
+  path: ./Benchmark/AgentBench/test_website/standard_updated_instructions.jsonl
+  type: single-agent multi-round
+  name: test_website
+  start_idx: 4 # Optional: 1-based index of the first task to execute. Leave null to start from the beginning.
+  end_idx: 6  # Optional: 1-based index of the last task to execute. Leave null to run through the end. (0-based internally)
+  per_task_tools: false  # Use same tools for all tasks
+
+Toolkit:
+  path: ./Toolkit/AgentBench/test_website
+  loader: ./Toolkit/AgentBench/test_website/load_tools.py
+
+Environment:
+  path: ./Environment/AgentBench/test_website
+  type: per-task  # Each benchmark task corresponds to an environment file
+
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.0
+    top_p: null
+    max_tokens: 12800
+    timeout: 30
+  providers:
+    openai-server:
+      model_id: gpt-4o-mini
+      api_base: http://your-api-server:port/v1
+      api_key: your-api-key-here
+
+Agent:
+  type: single-agent
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  prompt_templates: None
+  fill_with_all_tools: true  # Must be true to include all loaded tools (get_observation, click_element, type_text, select_option)
+
+Output:
+  log_dir: ./Results/logs/AgentBench/test_website
+  save_dir: ./Results/outputs/AgentBench/test_website
+  eval_results: ./Results/evaluations/test_website_metrics.json
+  include_environment: false  # Set to true if you want to include environment data in logs
+
+Evaluation:
+  enabled: true
+  metrics:
+    - Task Score
+  mode: model  # model-based evaluation (uses LLM judge to understand semantics)
+  judge_model:
+    model_id: gpt-4o-mini # Use the same judge model as the main model
+    api_base: http://your-api-server:port/v1
+    api_key: your-api-key-here
+    timeout: 60  # Increase timeout to 60 seconds
+  prompts: Evaluation/prompt_templates/with_label_default.yaml
+  success_threshold: 0.5
+  max_retries: 3
+  score_aggregation: sum  # sum or average
+  logs:
+    dir: ./Results/logs/AgentBench/test_website
+
+Retry:
+  max_attempts: 1  # Number of retry attempts for failed tasks
+

@@ -1,0 +1,35 @@
+Benchmark:
+  path: ./Benchmark/browsecomp/tasks_test.jsonl
+  type: single-agent multi-round
+  # start_idx: 33
+  # end_idx: 1
+  # start_idx: 0
+  # end_idx: 1
+Toolkit:
+  path: ./Toolkit/browsecomp  # no task-specific tools required for BrowseComp; keep empty toolbox
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.0
+    top_p: null
+    timeout: 600
+  providers:
+    openai-server:
+      model_id: deepseek-v3.2
+      api_base:  http://your-api-server:port/v1
+      api_key: "your-api-key-here"
+      client_kwargs: {}
+Agent:
+  type: single-agent multi-round
+  agent_dir: ./Agent/browsecomp/tool_calling_down.jsonl
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  fill_with_all_tools: false
+  max_attempts: 1
+Output:
+  log_dir: ./Results/logs/browsecomp/down
+  save_dir: ./Results/outputs/browsecomp/down
+Evaluation:
+  enabled: false

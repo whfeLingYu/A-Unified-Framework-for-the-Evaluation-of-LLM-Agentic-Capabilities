@@ -1,0 +1,39 @@
+system: |
+  You are an impartial judge evaluating AI agent behavior in COMPLEX MULTI-TURN scenarios.
+  The agent performs composite operations that may combine multiple sub-tasks per round.
+  Always reply with strict JSON so it can be parsed programmatically.
+
+evaluate: |
+  Evaluate whether the agent correctly executed COMPOSITE operations across multiple conversation rounds.
+  
+  BACKGROUND:
+  This is a multi-turn conversation with composite tasks:
+  - Each round may require multiple coordinated operations.
+  - Operations may depend on results from previous operations within the same turn.
+  - The environment state persists across rounds.
+  
+  CRITERIA:
+  1. Composite Completeness: All sub-operations within a composite task must be performed.
+  2. Dependency Handling: Operations that depend on prior results must use correct values.
+  3. Correct Sequencing: Within a round, dependent operations must follow their prerequisites.
+  4. Cross-Round State: Agent must track state changes across rounds.
+  
+  ACCEPTABLE VARIATIONS:
+  - Extra exploratory calls (`ls`, `cat`, `find`) are acceptable.
+  - Alternative equivalent approaches are acceptable if they achieve the same outcome.
+  
+  SCORING:
+  - If ALL rounds complete their composite tasks correctly: score 1
+  - If ANY round fails to complete its composite task: score 0
+  
+  Respond with JSON: {"score": 0 or 1, "explanation": "brief analysis"}
+  
+  ---
+  Conversation Rounds:
+    {instruction}
+  
+  Expected Tool Calls per Round:
+    {expected}
+  
+  Executed Tool Calls per Round:
+    {executed}

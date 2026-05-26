@@ -1,0 +1,65 @@
+Benchmark:
+  path: ./Benchmark/AgentBench/knowledgegraph/standard_updated_instructions.jsonl
+  type: single-agent single-round
+  name: knowledgegraph
+  start_idx: 1
+  end_idx: 177
+  per_task_tools: false
+
+Toolkit:
+  path: ./Toolkit/AgentBench/knowledgegraph
+  loader: ./Toolkit/AgentBench/knowledgegraph/load_tools.py
+
+Environment:
+  path: ./Environment/AgentBench/knowledgegraph
+  type: per-task
+  # SPARQL endpoint configuration (not used for local JSON knowledge graph)
+  # If the default endpoint is unavailable,
+  # you can specify an alternative endpoint here or in environment files
+  sparql_endpoint: null  # e.g., "http://your-sparql-server:port/sparql"
+
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.0
+    top_p: null
+    max_tokens: 12800
+    timeout: 60  # Increased timeout for SPARQL queries
+  providers:
+    openai-server:
+      model_id: gpt-4o-mini
+      api_base: http://your-api-server:port/v1
+      api_key: your-api-key-here
+
+Agent:
+  type: single-agent
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  prompt_templates: None
+  fill_with_all_tools: true
+  add_base_tools: false  # 禁止添加 web_search 等基础工具
+  max_steps: 20  # Knowledge graph tasks typically need 10-15 steps for multi-hop queries
+  stop_words: ["Final Answer:", "Final answer:", "final answer:"]  # Stop when agent outputs final answer
+
+Output:
+  log_dir: ./Results/logs/AgentBench/knowledgegraph
+  save_dir: ./Results/outputs/AgentBench/knowledgegraph
+  eval_results: ./Results/evaluations/knowledgegraph_metrics.json
+  include_environment: false
+
+Evaluation:
+  enabled: true
+  metrics:
+    - Task Score
+  mode: model
+  judge_model:
+    model_id: gpt-4o-mini
+    api_base: http://your-api-server:port/v1
+    api_key: your-api-key-here
+  prompts: Evaluation/prompt_templates/Agentbench/knowledgegraph.yaml
+  success_threshold: 1.0
+
+Retry:
+  max_attempts: 1

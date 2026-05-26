@@ -1,0 +1,1 @@
+{"name": "CustomerSupportAgent", "description": "Professional customer support specialist", "agent_type": "ToolCallingAgent", "system_prompt": "./Agent/examples/prompts/customer_support_prompt.txt", "tools": ["search_kb", "create_ticket", "send_email", "check_order_status"], "max_steps": 15, "stream_outputs": true}

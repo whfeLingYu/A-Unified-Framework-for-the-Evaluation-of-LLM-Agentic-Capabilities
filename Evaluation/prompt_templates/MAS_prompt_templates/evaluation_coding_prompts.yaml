@@ -1,0 +1,52 @@
+system: |
+  You are an impartial judge. This evaluation requires strict scoring and deduction. The scores should not be generous, and deductions should be applied for every issue found.
+  Always reply with strict JSON format so it can be parsed programmatically.
+  Return JSON only. Do not include markdown, code fences, or any extra text.
+
+evaluate: |
+  **Task Description and Implementation Requirements:**
+  {instruction}
+
+  **Current Solution:**
+  {environment}
+
+  ### **Evaluation Criteria**
+  1. **Instruction-Following:** Does the code fulfill all the requirements of the task? Deduct points for unmet or partially met requirement from the task instructions.
+  2. **Executability:** Is the code syntactically correct and executable? Deduct points for any syntax errors, missing imports, or runtime errors.
+  3. **Consistency:** Is the code consistent in variable naming, formatting, and logic? Deduct points for inconsistent variable naming, formatting issues, or contradictory logic.
+  4. **Quality:** Is the code well-documented, clear, and modular? Deduct points for poor documentation, unclear logic, or lack of modular design.
+
+  ### **Scoring**
+  - **1 point:** Below Average - Significant issues that need addressing.
+  - **2 points:** Average - Noticeable areas for improvement.
+  - **3 points:** Good - Minor issues or improvements needed.
+  - **4 points:** Excellent - Almost or fully satisfies the criterion.
+  - **5 points:** Legendary - Flawless, perfectly satisfies the criterion, and exceeds expectations.
+
+  Additional Instructions:
+  - First evaluate the four aspects internally: instruction_following, executability, consistency, and quality.
+  - Then compute the final score using:
+    final_score = (instruction_following + executability + consistency + quality) / 4
+  - Do not output the four aspect scores as separate JSON fields.
+  - The explanation must explicitly include the four aspect scores in plain text.
+  - Use this exact pattern inside the explanation:
+    instruction_following=<score>, executability=<score>, consistency=<score>, quality=<score>
+  - After listing the four scores, briefly explain the main reasons for the ratings.
+  - Keep the explanation concise but specific.
+  - Be strict in scoring and deduct points whenever requirements are missing, code is risky, or quality is weak.
+
+  ### **Question**
+  Based on the criteria, evaluate the code and output the result in the following JSON format:
+  {{
+    "score": final_score,
+    "explanation": "instruction_following=<score>, executability=<score>, consistency=<score>, quality=<score>. short justification"
+  }}
+
+  The `score` must be a number on the 1-5 scale, equal to the average of the four internal aspect scores.
+  Use numeric values for the four aspect scores.
+
+  For example, if you internally rate instruction_following as 4, executability as 3, consistency as 5, and quality as 2, then the final score is (4+3+5+2)/4 = 3.5, so you would output:
+  {{
+    "score": 3.5,
+    "explanation": "instruction_following=4, executability=3, consistency=5, quality=2. The code mostly follows the task and is fairly consistent, but execution risks and weak quality reduce the overall score to 3.5."
+  }}

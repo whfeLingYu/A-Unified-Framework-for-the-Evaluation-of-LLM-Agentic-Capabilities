@@ -1,0 +1,58 @@
+# Drift_Collaboration - Project Dependencies
+
+## Core Dependencies
+pygame>=2.5.0  # Graphics and game loop
+numpy>=1.24.0  # Mathematical operations and physics
+pyopengl>=3.1.0  # 3D graphics rendering
+pybullet>=3.2.5  # Advanced physics simulation (optional)
+
+## Networking Dependencies
+twisted>=22.10.0  # Asynchronous networking framework
+websockets>=11.0.0  # WebSocket support for browser clients
+msgpack>=1.0.0  # Efficient binary serialization
+cryptography>=41.0.0  # Network security and encryption
+
+## UI/UX Dependencies
+pyqt5>=5.15.0  # Advanced UI framework for track editor
+imgui[pygame]>=2.0.0  # Immediate mode GUI for in-game UI
+pillow>=10.0.0  # Image processing for textures
+
+## Data Management
+sqlalchemy>=2.0.0  # Database ORM for player data
+redis>=4.5.0  # In-memory data store for real-time data
+pydantic>=2.0.0  # Data validation and settings management
+
+## Development Tools
+pytest>=7.4.0  # Testing framework
+black>=23.0.0  # Code formatting
+mypy>=1.5.0  # Static type checking
+flake8>=6.0.0  # Code linting
+
+## Optional Dependencies
+# For advanced graphics:
+# moderngl>=5.8.0  # Modern OpenGL wrapper
+# pyglet>=2.0.0  # Alternative graphics library
+
+# For audio:
+# pyaudio>=0.2.0  # Audio input/output
+# soundfile>=0.12.0  # Audio file handling
+
+# For machine learning (future AI opponents):
+# torch>=2.0.0  # Machine learning framework
+# scikit-learn>=1.3.0  # Machine learning algorithms
+
+## Development Environment
+python>=3.8.0
+setuptools>=65.0.0
+wheel>=0.40.0
+
+## Installation
+# Create virtual environment:
+# python -m venv venv
+# source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies:
+# pip install -r requirements.txt
+
+# For development with all optional dependencies:
+# pip install -r requirements.txt -r requirements-dev.txt

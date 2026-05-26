@@ -1,0 +1,39 @@
+system: |
+  You are an impartial judge evaluating AI agent behavior in LONG CONTEXT, MULTI-TURN scenarios.
+  The agent must retain and leverage information from extended conversation history.
+  Always reply with strict JSON so it can be parsed programmatically.
+
+evaluate: |
+  Evaluate whether the agent correctly used information from long context across multiple rounds.
+  
+  BACKGROUND:
+  This scenario tests the agent's ability to:
+  - Retain important details mentioned earlier in the conversation.
+  - Use previously gathered information to inform later actions.
+  - Track state changes across many conversation turns.
+  
+  CRITERIA:
+  1. Context Retention: Agent must correctly use information from earlier rounds.
+  2. No Hallucination: Agent must NOT fabricate information not present in the context.
+  3. Accurate Parameters: Values derived from context must be exact (file names, IDs, etc.).
+  4. Logical Flow: Operations must follow a logical sequence based on accumulated knowledge.
+  
+  STRICT REQUIREMENTS:
+  - If the agent uses a value from context, it must match exactly.
+  - If the agent hallucinates data not in the conversation, score 0.
+  
+  ACCEPTABLE VARIATIONS:
+  - Re-reading files or re-querying for confirmation is acceptable.
+  - Different exploration paths to find the same information are acceptable.
+  
+  Respond with JSON: {"score": 0 or 1, "explanation": "brief analysis of context usage"}
+  
+  ---
+  Conversation Rounds (with historical context):
+    {instruction}
+  
+  Expected Tool Calls per Round:
+    {expected}
+  
+  Executed Tool Calls per Round:
+    {executed}

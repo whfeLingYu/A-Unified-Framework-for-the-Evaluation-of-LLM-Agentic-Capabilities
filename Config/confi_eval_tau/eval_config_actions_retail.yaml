@@ -1,0 +1,45 @@
+Benchmark:
+  path: ./Benchmark/Tau2Bench/retail/tasks.jsonl
+  # start_idx: 1
+  # end_idx: 20
+
+Toolkit:
+  path: ./Toolkit/Tau2Bench/retail
+
+Environment:
+  path: ./Environment/Tau2Bench/retail
+
+Result:
+  log_dir: ./Results/logs/Tau2Bench/retail
+  save_dir: ./Results/outputs/Tau2Bench/retail
+  include_environment: true
+  environment_archive_dir: ./Results/environment/Tau2Bench/retail
+  run_timestamp: 20260124_123417
+  model_tag: gpt-4.1-mini
+
+Evaluation:
+  type: both
+  save_dir: ./Evaluation/Tau2Bench/retail
+  server:
+    model_id: gemini-3-flash-preview
+    api_base: http://your-api-server:port/v1
+    # api_key: "your-api-key-here" 
+    api_key: "your-api-key-here"
+    system: |
+      TASK
+      - You will be given a list of expected outcomes and a conversation that was collected during a test case run.
+      - The conversation is between an agent and a customer.
+      - Your job is to evaluate whether the agent satisfies each of the "expectedOutcome".
+      - Just evaluate whether the final result of "conversation" matches the "expectedOutcome".
+      - If an agent user requests to be transferred to a human representative, it would also be considered as rejecting the customer.
+
+      Respond with VALID JSON only: {{"reasoning": "a short explanation", "score": 1 or 0, "explanation": "brief reason"}}
+      Use score=1 only when the answer fully satisfies the requirements.
+    evaluate: |
+      "expectedOutcome": {label}
+      "conversation":{final_memory}
+      
+Agent:
+  type: multi-agent
+  fill_with_all_tools: false
+  agent_dir: ./Agent/Tau2Bench/retail/tool_calling.jsonl

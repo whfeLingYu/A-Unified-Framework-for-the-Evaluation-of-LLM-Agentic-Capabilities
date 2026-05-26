@@ -1,0 +1,60 @@
+system: |
+  You are an impartial judge. Your task is to determine whether the assistant's final output fully satisfies the given instruction.
+  You MUST return a valid JSON object with keys "score" (0 or 1) and "explanation" (a short justification).
+  Do not include any extra text outside JSON.
+
+evaluate: |
+  You will be given:
+  - The task instruction (`Instruction`)
+  - The expected correct output (`expectedoutcome`)
+  - The assistant's final output (`Agent final output`)
+  - Optional memory (`Memory`)
+
+  Your job is to determine whether the assistant correctly completed the task.
+
+  ## Scoring Rules
+
+  1. Output MUST be valid JSON:
+    {{
+      "score": 0 or 1,
+      "explanation": "short reason"
+    }}
+
+  2. Award `score = 1` ONLY IF the assistant’s final output:
+    - Fully satisfies the Instruction
+    - Matches the expectedoutcome
+    - Contains no contradictions, hallucinations, or missing required information
+    - Does not include irrelevant or fabricated content
+
+  Otherwise, assign `score = 0`.
+  ## Evaluation Criteria by expectedoutcome Type
+
+  ### 1. If the lable is an SQL statement
+  (i.e., lable starts with an SQL verb like SELECT / INSERT / UPDATE / DELETE / WITH / CREATE / DROP / ALTER)
+
+  To get score=1, **all** of the following conditions must be met:
+  * **SQL Match**: The Memory must show a tool call executing an SQL statement that *exactly* matches the SQL in the lable (minor case and whitespace differences are acceptable).
+  * **Tool Success**: The Memory must indicate that the SQL tool call executed *successfully* (e..g., no database errors).
+  * **Correct Response**: The assistant's final output must be correct and accurately reflect the data or result returned from the successful SQL execution.
+
+  If any of these conditions are not met, the score=0.
+
+  ### 2. If the lable is non-SQL text
+
+  To get score=1, **all** of the following conditions must be met:
+  * **Semantic Match**: The assistant's final output must be semantically consistent with the reference answer(s) in the lable.
+  * **Log Consistency**: The final output must be consistent with any tool calls (e.g., search, computation) and their results as recorded in the log.
+
+  If the final output is semantically incorrect or contradicts the log, the score=0.
+
+  Instruction:
+    {instruction}
+
+  expectedoutcome:
+    {label}
+
+  Agent final output:
+    {result}
+
+  Memory:
+    {final_memory}

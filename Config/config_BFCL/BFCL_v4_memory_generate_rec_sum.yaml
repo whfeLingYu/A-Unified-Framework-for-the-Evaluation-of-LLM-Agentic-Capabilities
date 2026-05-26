@@ -1,0 +1,51 @@
+Benchmark:
+  path: ./Benchmark/BFCL/unified_memory_prereq.jsonl
+  type: single-agent multi-round
+  per_task_tools: false  
+  start_idx: 0
+  end_idx: 1
+
+
+Toolkit:
+  path:  ./Toolkit/BFCL/generated_tools/BFCL_v4_memory_generate_rec_sum
+  generated_dir: ./Toolkit/BFCL/generated_tools/BFCL_v4_memory_generate_rec_sum
+
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.1
+    max_tokens: 4096
+    timeout: 60
+  providers:
+    openai-server:
+      model_id: Qwen3-30B-A3B-Instruct-2507
+      api_base: http://your-api-server:port/v1
+      api_key: ""
+      temperature: 0.0
+      
+Environment:
+  path: ./Environment/BFCL/snapshot/BFCL_v4_memory_generate_rec_sum
+  type: none
+  output_file: ./Environment/BFCL/snapshot/BFCL_v4_memory_generate_rec_sum
+
+Agent:
+  type: single-agent multi-round
+  agent_dir: ./Agent/BFCL
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  fill_with_all_tools: true
+  system_prompt: |
+    You are an intelligent assistant with access to a persistent memory system.
+    
+    You have access to an advanced memory system, which is persistent across multiple conversations with the user, and can be accessed in a later interactions. You should actively manage your memory data to keep track of important information, ensure that it is up-to-date and easy to retrieve to provide personalized responses to the user later.
+
+    You should use `memory_update` or `memory_append` to store information. Since this is a Recursive Summary model, you should aim to maintain a concise yet comprehensive summary of important details.
+
+Output:
+  log_dir: ./Results/logs/BFCL/BFCL_v4_memory_generate_rec_sum
+  save_dir: ./Results/outputs/BFCL/BFCL_v4_memory_generate_rec_sum
+
+Evaluation:
+  enabled: false

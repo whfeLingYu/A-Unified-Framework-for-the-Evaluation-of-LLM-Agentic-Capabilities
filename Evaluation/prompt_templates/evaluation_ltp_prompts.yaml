@@ -1,0 +1,49 @@
+system: |
+  You are an impartial judge evaluating lateral thinking puzzle (LTP) solving performance. This evaluation requires strict and objective scoring based on the interaction record. The scores should be precise and reflect the actual quality of the puzzle-solving process.
+  Always reply with strict JSON format so it can be parsed programmatically.
+
+evaluate: |
+  **Task Description:**
+  {task_description}
+
+  **Puzzle Story:**
+  {story}
+
+  **Correct Answer:**
+  {answer}
+
+  **Agent Interaction Record:**
+  {interaction_record}
+
+  ### **Evaluation Criteria**
+
+  1. **Single Game Accuracy (SGA):** How close did the agent get to the truth throughout the game? Evaluate the proportion of rounds where the agent made meaningful progress toward discovering the hidden truth. Consider how well the agent understood the story's implications and moved closer to the correct solution.
+
+  2. **Query Relevance (QR):** How relevant were the agent's questions to solving the puzzle? Assess whether questions were strategic, targeted the key elements of the mystery, and helped uncover the hidden truth rather than being tangential or irrelevant.
+
+  3. **Round Efficiency (RE):** How efficiently did the agent solve the puzzle? Evaluate the number of rounds needed relative to the maximum allowed rounds. Fewer rounds to reach the solution indicates higher efficiency.
+
+  4. **Game Progress (GP):** What was the overall progress made in the game? Assess the cumulative advancement toward solving the puzzle, considering both the quality of questions and the logical progression toward the answer.
+
+  ### **Scoring Guidelines**
+  - **0.0-0.2:** Poor - Little to no progress or highly inefficient approach
+  - **0.3-0.4:** Below Average - Some progress but significant issues
+  - **0.5-0.6:** Average - Moderate progress with room for improvement
+  - **0.7-0.8:** Good - Strong progress and reasonable efficiency
+  - **0.9-1.0:** Excellent - Near-perfect solving with high efficiency
+
+  ### **Important Notes**
+  - Base scores on the actual interaction record, not assumptions
+  - Consider the difficulty of the puzzle and the maximum rounds allowed
+  - A solved puzzle should receive high scores across all criteria
+  - Penalize irrelevant questions, repeated questions, or lack of logical progression
+
+  ### **Question**
+  Based on the criteria, evaluate the lateral thinking puzzle solving performance and output the scores in the following JSON format:
+  {{
+    "sga_score": score,
+    "qr_score": score,
+    "re_score": score,
+    "gp_score": score,
+    "solved": true/false
+  }}

@@ -1,0 +1,64 @@
+Benchmark:
+  path: ./Benchmark/BFCL/unified_memory_prereq.jsonl
+  type: single-agent multi-round
+  per_task_tools: false  
+  start_idx: 0
+  end_idx: 1
+
+
+Toolkit:
+  path:  ./Toolkit/BFCL/generated_tools/BFCL_v4_memory_generate_kv
+  generated_dir: ./Toolkit/BFCL/generated_tools/BFCL_v4_memory_generate_kv
+
+Model:
+  provider: openai-server
+  parameters:
+    temperature: 0.1
+    max_tokens: 4096
+    timeout: 60
+  providers:
+    openai-server:
+      model_id: Qwen3-30B-A3B-Instruct-2507
+      api_base: http://your-api-server:port/v1
+      api_key: ""
+      temperature: 0.0
+      
+Environment:
+  path: ./Environment/BFCL/snapshot/BFCL_v4_memory_generate_kv
+  type: none
+  output_file: ./Environment/BFCL/snapshot/BFCL_v4_memory_kv
+Agent:
+  type: single-agent multi-round
+  agent_dir: ./Agent/BFCL
+  agent_type: ToolCallingAgent
+  stream_outputs: false
+  planning_interval: -1
+  max_tool_threads: 1
+  fill_with_all_tools: false
+  system_prompt: |
+    You are an intelligent assistant with access to a memory system.
+    
+    You have access to an advanced memory system, consisting of two memory types 'Core Memory' and 'Archival Memory'. Both type of memory is persistent across multiple conversations with the user, and can be accessed in a later interactions. You should actively manage your memory data to keep track of important information, ensure that it is up-to-date and easy to retrieve to provide personalized responses to the user later.
+
+    The Core memory is limited in size (max 7 entries), but always visible to you in context. The Archival Memory has a much larger capacity (max 50 entries), but will be held outside of your immediate context due to its size.
+
+    **IMPORTANT - Memory Usage Guidelines:**
+    - Use `core_memory_add` for KEY FACTS that you need to reference frequently:
+      * Name, age, location, occupation
+      * Key preferences and important identifiers  
+      * Critical numbers (dates, amounts, IDs)
+      
+    - Use `archival_memory_add` for DETAILED INFORMATION that provides context:
+      * Detailed event descriptions and stories
+      * Extended background information
+      * Specific product details, order history
+      * Longer text that doesn't fit in core memory
+
+    You MUST actively store information using BOTH memory types as appropriate. Don't let any important details slip through!
+
+Output:
+  log_dir: ./Results/logs/BFCL/BFCL_v4_memory_generate_kv
+  save_dir: ./Results/outputs/BFCL/BFCL_v4_memory_generate_kv
+
+Evaluation:
+  enabled: false

@@ -1,0 +1,30 @@
+{
+  "name": "CompleteToolCallingAgent",
+  "description": "完整配置的ToolCallingAgent示例，包含所有常用字段",
+  "agent_type": "ToolCallingAgent",
+  "system_prompt": "You are an expert assistant with access to various tools. Your goal is to help users complete tasks efficiently by selecting and using the appropriate tools. Always think step by step and explain your reasoning.",
+  "tools": [
+    "search_web",
+    "read_file",
+    "write_file",
+    "execute_command",
+    "calculate"
+  ],
+  "max_steps": 25,
+  "planning_interval": 5,
+  "max_tool_threads": 1,
+  "stream_outputs": true,
+  "verbosity_level": 1,
+  "provide_final_answer_only": false,
+  "provide_run_summary": true,
+  "max_output_length": 5000,
+  "return_intermediate_outputs": false,
+  "memory_bank_size": 100,
+  "metadata": {
+    "version": "1.0",
+    "author": "Framework Team",
+    "tags": ["complete", "tool-calling", "example"],
+    "created_at": "2024-01-28",
+    "description": "完整的ToolCallingAgent配置示例"
+  }
+}
