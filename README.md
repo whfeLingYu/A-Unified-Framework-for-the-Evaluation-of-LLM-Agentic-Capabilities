@@ -543,3 +543,18 @@ Run with `python main.py --config Config/config_<MyBench>/<task>.yaml`.
 - `Benchmark/`, `Toolkit/`, and `Environment/` are not committed to this
   repo — fetch them from HuggingFace (see Step 1). `Results/` is produced
   per-run and is also not part of source control.
+
+
+## Citation
+If you find this useful, please cite our article.
+```
+@misc{zhu2026uniaceunifiedframeworkevaluating,
+      title={UniACE: A Unified Framework for Evaluating LLM Agentic Capabilities}, 
+      author={Pengyu Zhu and Lijun Li and Yaxing Lyu and Qianxin Luo and Jingyi Yang and Yi Liu and Tingfeng Hui and Xinyu Yuan and Li Sun and Sen Su and Jing Shao},
+      year={2026},
+      eprint={2605.27898},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2605.27898}, 
+}
+```
